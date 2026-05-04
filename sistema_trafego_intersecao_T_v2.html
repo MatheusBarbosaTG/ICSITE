@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Tráfego — Interseção T Semafórica</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1117; --bg2: #181b24; --bg3: #22262f; --bg4: #2c313c;
+  --tx: #e4e6ed; --tx2: #9da2b0; --tx3: #636879;
+  --brd: rgba(255,255,255,.08);
+  --green: #34d399; --green-bg: rgba(52,211,153,.1);
+  --red: #f87171; --red-bg: rgba(248,113,113,.1);
+  --yellow: #fbbf24; --yellow-bg: rgba(251,191,36,.1);
+  --blue: #60a5fa; --blue-bg: rgba(96,165,250,.1);
+  --purple: #a78bfa;
+  --road: #2a2e38; --road-mark: rgba(251,191,36,.35);
+  --font: 'DM Sans', sans-serif; --mono: 'JetBrains Mono', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font); background: var(--bg); color: var(--tx); line-height: 1.6; }
+.container { max-width: 780px; margin: 0 auto; padding: 32px 20px; }
+.hdr { margin-bottom: 28px; }
+.hdr h1 { font-size: 24px; font-weight: 700; letter-spacing: -.3px; }
+.hdr p { font-size: 13px; color: var(--tx3); margin-top: 4px; }
+.hdr .src { font-size: 11px; color: var(--tx3); margin-top: 2px; font-style: italic; }
+
+.phase-bar { display: flex; justify-content: center; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+.phase-btn {
+  padding: 8px 20px; border: 1.5px solid var(--brd); border-radius: 10px;
+  font-family: var(--font); font-size: 13px; font-weight: 500;
+  background: var(--bg2); color: var(--tx2); cursor: pointer; transition: all .2s;
+}
+.phase-btn:hover { background: var(--bg3); }
+.phase-btn.active-g { border-color: var(--green); color: var(--green); background: var(--green-bg); }
+.phase-btn.active-r { border-color: var(--red); color: var(--red); background: var(--red-bg); }
+.phase-btn.active-y { border-color: var(--yellow); color: var(--yellow); background: var(--yellow-bg); }
+.phase-desc { text-align: center; font-size: 14px; font-weight: 500; margin-bottom: 20px; min-height: 22px; }
+
+.streets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 32px; }
+.st-card {
+  padding: 14px 12px; border-radius: 12px; border: 1px solid var(--brd);
+  background: var(--bg2); text-align: center; transition: all .3s;
+}
+.st-card.go { border-color: var(--green); background: var(--green-bg); }
+.st-card.stop { border-color: var(--red); background: var(--red-bg); }
+.st-name { font-size: 11px; font-weight: 600; letter-spacing: .5px; color: var(--tx3); margin-bottom: 4px; }
+.st-card.go .st-name { color: var(--green); }
+.st-card.stop .st-name { color: var(--red); }
+.st-signal { font-size: 20px; margin: 4px 0; }
+.st-moves { font-size: 11px; color: var(--tx2); line-height: 1.5; }
+.st-card.stop .st-moves { color: var(--tx3); }
+
+h2 { font-size: 16px; font-weight: 600; margin: 32px 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--brd); }
+h2 .num { color: var(--tx3); font-weight: 400; margin-right: 6px; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 16px; }
+thead th {
+  text-align: left; padding: 8px 10px; font-weight: 600; font-size: 11px;
+  color: var(--tx3); letter-spacing: .3px; border-bottom: 1.5px solid var(--brd); background: var(--bg2);
+}
+td { padding: 8px 10px; border-bottom: 1px solid var(--brd); vertical-align: top; }
+.mono { font-family: var(--mono); font-size: 11px; }
+.tag { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 600; letter-spacing: .2px; }
+.tag-go { background: var(--green-bg); color: var(--green); }
+.tag-stop { background: var(--red-bg); color: var(--red); }
+.tag-arr { background: var(--blue-bg); color: var(--blue); }
+.tag-dep { background: rgba(167,139,250,.15); color: var(--purple); }
+.tag-sig { background: var(--yellow-bg); color: var(--yellow); }
+.tag-uc { background: var(--bg3); color: var(--tx3); }
+.truth-go { color: var(--green); font-weight: 600; }
+.truth-stop { color: var(--red); }
+.compat { text-align: center; }
+.compat td, .compat th { text-align: center; padding: 6px 8px; }
+.compat .yes { color: var(--green); font-weight: 600; }
+.compat .no { color: var(--red); }
+.compat .na { color: var(--tx3); }
+.compat .header-cell { background: var(--bg2); font-weight: 600; color: var(--tx2); font-size: 11px; }
+.state-box {
+  background: var(--bg2); border: 1px solid var(--brd); border-radius: 10px;
+  padding: 16px 20px; margin: 12px 0; font-family: var(--mono); font-size: 13px; line-height: 2;
+}
+.state-box .label { color: var(--tx3); font-family: var(--font); font-size: 11px; display: block; margin-bottom: 4px; }
+.state-box .eq { color: var(--blue); } .state-box .set { color: var(--green); } .state-box .sym { color: var(--yellow); }
+.note { font-size: 11px; color: var(--tx3); line-height: 1.6; margin: 8px 0; }
+.note strong { color: var(--tx2); }
+.footer { text-align: center; font-size: 11px; color: var(--tx3); margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--brd); }
+
+@media (max-width: 500px) {
+  .streets { grid-template-columns: 1fr; }
+  .container { padding: 20px 14px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="hdr">
+  <h1>Sistema de Tráfego — Interseção T Semafórica</h1>
+  <p>Modelo de Sistema a Eventos Discretos com controle semafórico para 3 ruas</p>
+  <div class="src">Baseado em: Cassandras & Lafortune, "Introduction to Discrete Event Systems" — Cap. 1 + Cury, "Teoria de Controle Supervisório" — Cap. 2</div>
+</div>
+
+<!-- TOP-DOWN INTERSECTION VIEW -->
+<div style="max-width:560px;margin:0 auto">
+<svg id="map" width="100%" viewBox="0 0 560 480" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M1 1L9 5L1 9" fill="none" stroke="context-stroke" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <!-- ROADS -->
+  <rect x="200" y="0" width="160" height="480" fill="#2a2e38"/>
+  <rect x="0" y="160" width="360" height="160" fill="#2a2e38"/>
+
+  <!-- Road center lines -->
+  <line x1="280" y1="0" x2="280" y2="158" stroke="#fbbf24" stroke-width="2" stroke-dasharray="10 8" opacity=".3"/>
+  <line x1="280" y1="322" x2="280" y2="480" stroke="#fbbf24" stroke-width="2" stroke-dasharray="10 8" opacity=".3"/>
+  <line x1="0" y1="240" x2="198" y2="240" stroke="#fbbf24" stroke-width="2" stroke-dasharray="10 8" opacity=".3"/>
+
+  <!-- Lane dividers -->
+  <line x1="240" y1="0" x2="240" y2="158" stroke="rgba(255,255,255,.06)" stroke-width="1" stroke-dasharray="6 10"/>
+  <line x1="320" y1="322" x2="320" y2="480" stroke="rgba(255,255,255,.06)" stroke-width="1" stroke-dasharray="6 10"/>
+
+  <!-- STREET LABELS -->
+  <text x="90" y="210" font-family="DM Sans" font-size="16" font-weight="700" fill="rgba(255,255,255,.2)" letter-spacing="6">RUA 1</text>
+  <text x="225" y="440" font-family="DM Sans" font-size="14" font-weight="700" fill="rgba(255,255,255,.2)" letter-spacing="4" transform="rotate(-90 230 440)">RUA 2</text>
+  <text x="310" y="90" font-family="DM Sans" font-size="14" font-weight="700" fill="rgba(255,255,255,.2)" letter-spacing="4" transform="rotate(-90 315 90)">RUA 3</text>
+
+  <!-- Direction hints -->
+  <text x="243" y="65" font-family="DM Sans" font-size="18" fill="rgba(255,255,255,.12)">↓</text>
+  <text x="308" y="65" font-family="DM Sans" font-size="18" fill="rgba(255,255,255,.12)">↑</text>
+  <text x="100" y="222" font-family="DM Sans" font-size="18" fill="rgba(255,255,255,.12)">→</text>
+
+  <!-- INTERSECTION BOX -->
+  <rect x="200" y="160" width="160" height="160" fill="#323842" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
+
+  <!-- ============================================ -->
+  <!-- TRAFFIC LIGHT: central box + 3 semi-circles -->
+  <!-- Center of intersection = (280, 240)         -->
+  <!-- Box: 30x30 centered at (280, 240)           -->
+  <!-- Semi-circles protrude from left, top, bottom -->
+  <!-- ============================================ -->
+
+  <!-- Central controller box -->
+  <rect x="265" y="225" width="30" height="30" rx="2" fill="#111318" stroke="rgba(255,255,255,.25)" stroke-width="1.5"/>
+
+  <!-- Semi-circle facing LEFT (Rua 1 sees this) -->
+  <!-- Arc from (265, 225) to (265, 255) bulging left with radius 15 -->
+  <path id="light-r1" d="M265 227 A14 14 0 0 0 265 253" fill="#444" stroke="rgba(255,255,255,.25)" stroke-width="1.5"/>
+
+  <!-- Semi-circle facing TOP (Rua 2 sees this — traffic coming from above) -->
+  <!-- Arc from (267, 225) to (293, 225) bulging upward with radius 13 -->
+  <path id="light-r2" d="M267 225 A13 13 0 0 1 293 225" fill="#444" stroke="rgba(255,255,255,.25)" stroke-width="1.5"/>
+
+  <!-- Semi-circle facing BOTTOM (Rua 3 sees this — traffic coming from below) -->
+  <!-- Arc from (267, 255) to (293, 255) bulging downward with radius 13 -->
+  <path id="light-r3" d="M267 255 A13 13 0 0 0 293 255" fill="#444" stroke="rgba(255,255,255,.25)" stroke-width="1.5"/>
+
+  <!-- Tiny labels next to each semi-circle -->
+  <text x="240" y="244" text-anchor="middle" font-family="DM Sans" font-size="8" font-weight="600" fill="rgba(255,255,255,.3)">R1</text>
+  <text x="280" y="204" text-anchor="middle" font-family="DM Sans" font-size="8" font-weight="600" fill="rgba(255,255,255,.3)">R2</text>
+  <text x="280" y="278" text-anchor="middle" font-family="DM Sans" font-size="8" font-weight="600" fill="rgba(255,255,255,.3)">R3</text>
+
+  <!-- ============================================ -->
+  <!-- VEHICLE MOVEMENT ARROWS                      -->
+  <!-- ============================================ -->
+
+  <!-- Phase G arrows (Rua 1 movements) -->
+  <g id="arrows-g" opacity="0">
+    <path d="M80 225 L230 225 Q248 225 248 243 L248 390"
+          fill="none" stroke="#34d399" stroke-width="3.5" stroke-linecap="round" marker-end="url(#ah)"/>
+    <rect x="56" y="212" width="46" height="22" rx="4" fill="rgba(52,211,153,.15)"/>
+    <text x="79" y="227" text-anchor="middle" font-family="JetBrains Mono" font-size="11" font-weight="500" fill="#34d399">(1→2)</text>
+
+    <path d="M80 255 L290 255 Q312 255 312 233 L312 80"
+          fill="none" stroke="#34d399" stroke-width="3.5" stroke-linecap="round" marker-end="url(#ah)"/>
+    <rect x="56" y="260" width="46" height="22" rx="4" fill="rgba(52,211,153,.15)"/>
+    <text x="79" y="275" text-anchor="middle" font-family="JetBrains Mono" font-size="11" font-weight="500" fill="#34d399">(1→3)</text>
+  </g>
+
+  <!-- Phase R arrows (Rua 2/3 movements) -->
+  <g id="arrows-r" opacity="0">
+    <path d="M248 420 L248 60"
+          fill="none" stroke="#60a5fa" stroke-width="3.5" stroke-linecap="round" marker-end="url(#ah)"/>
+    <rect x="388" y="200" width="46" height="22" rx="4" fill="rgba(96,165,250,.15)"/>
+    <text x="411" y="215" text-anchor="middle" font-family="JetBrains Mono" font-size="11" font-weight="500" fill="#60a5fa">(2→3)</text>
+
+    <path d="M312 60 L312 420"
+          fill="none" stroke="#a78bfa" stroke-width="3.5" stroke-linecap="round" marker-end="url(#ah)"/>
+    <rect x="388" y="244" width="46" height="22" rx="4" fill="rgba(167,139,250,.15)"/>
+    <text x="411" y="259" text-anchor="middle" font-family="JetBrains Mono" font-size="11" font-weight="500" fill="#a78bfa">(3→2)</text>
+  </g>
+
+  <!-- Stopped indicator bars -->
+  <g id="stop-g" opacity="0">
+    <rect x="234" y="152" width="24" height="4" rx="2" fill="#f87171" opacity=".8"/>
+    <rect x="300" y="324" width="24" height="4" rx="2" fill="#f87171" opacity=".8"/>
+  </g>
+  <g id="stop-r" opacity="0">
+    <rect x="192" y="220" width="4" height="24" rx="2" fill="#f87171" opacity=".8"/>
+  </g>
+
+  <!-- Legend -->
+  <g opacity=".5">
+    <rect x="400" y="400" width="150" height="70" rx="8" fill="rgba(0,0,0,.3)"/>
+    <circle cx="418" cy="420" r="5" fill="#34d399"/>
+    <text x="430" y="424" font-family="DM Sans" font-size="10" fill="#9da2b0">Sinal verde</text>
+    <circle cx="418" cy="440" r="5" fill="#f87171"/>
+    <text x="430" y="444" font-family="DM Sans" font-size="10" fill="#9da2b0">Sinal vermelho</text>
+    <line x1="412" y1="458" x2="424" y2="458" stroke="#34d399" stroke-width="2.5"/>
+    <text x="430" y="462" font-family="DM Sans" font-size="10" fill="#9da2b0">Fluxo permitido</text>
+  </g>
+</svg>
+</div>
+
+<div class="phase-bar">
+  <button class="phase-btn" id="btn-none" onclick="setPhase('none')">Nenhuma fase</button>
+  <button class="phase-btn" id="btn-g" onclick="setPhase('g')">Fase G — Rua 1 Verde</button>
+  <button class="phase-btn" id="btn-r" onclick="setPhase('r')">Fase R — Ruas 2/3 Verde</button>
+  <button class="phase-btn" id="btn-auto" onclick="toggleAuto()">▶ Auto</button>
+</div>
+
+<div class="phase-desc" id="phase-desc">Selecione uma fase para ver os movimentos permitidos</div>
+
+<div class="streets" id="streets">
+  <div class="st-card" id="sc1"><div class="st-name">RUA 1</div><div class="st-signal" id="sig1">—</div><div class="st-moves" id="mov1">—</div></div>
+  <div class="st-card" id="sc2"><div class="st-name">RUA 2</div><div class="st-signal" id="sig2">—</div><div class="st-moves" id="mov2">—</div></div>
+  <div class="st-card" id="sc3"><div class="st-name">RUA 3</div><div class="st-signal" id="sig3">—</div><div class="st-moves" id="mov3">—</div></div>
+</div>
+
+<!-- SECTION 1 -->
+<h2><span class="num">1.</span> Movimentos de veículos</h2>
+<table>
+<thead><tr><th>MOVIMENTO</th><th>ORIGEM</th><th>DESTINO</th><th>MANOBRA</th><th>FASE</th></tr></thead>
+<tbody>
+<tr><td class="mono">(1 → 2)</td><td>Rua 1</td><td>Rua 2 (sul)</td><td>Conversão à esquerda</td><td><span class="tag tag-go">Fase G</span></td></tr>
+<tr><td class="mono">(1 → 3)</td><td>Rua 1</td><td>Rua 3 (norte)</td><td>Conversão à direita</td><td><span class="tag tag-go">Fase G</span></td></tr>
+<tr><td class="mono">(2 → 3)</td><td>Rua 2 (sul)</td><td>Rua 3 (norte)</td><td>Seguir reto</td><td><span class="tag tag-stop">Fase R</span></td></tr>
+<tr><td class="mono">(3 → 2)</td><td>Rua 3 (norte)</td><td>Rua 2 (sul)</td><td>Seguir reto</td><td><span class="tag tag-stop">Fase R</span></td></tr>
+</tbody>
+</table>
+<div class="note"><strong>Fase G:</strong> semáforo verde para Rua 1 (vermelho para Ruas 2/3). <strong>Fase R:</strong> vermelho para Rua 1 (verde para Ruas 2/3).</div>
+
+<!-- SECTION 2 -->
+<h2><span class="num">2.</span> Conjunto de eventos</h2>
+<table>
+<thead><tr><th>EVENTO</th><th>DESCRIÇÃO</th><th>TIPO</th><th>NATUREZA</th></tr></thead>
+<tbody>
+<tr><td class="mono">a₁₂</td><td>Chegada de veículo tipo (1→2) na fila da Rua 1</td><td><span class="tag tag-arr">Chegada</span></td><td><span class="tag tag-uc">Não controlável</span></td></tr>
+<tr><td class="mono">a₁₃</td><td>Chegada de veículo tipo (1→3) na fila da Rua 1</td><td><span class="tag tag-arr">Chegada</span></td><td><span class="tag tag-uc">Não controlável</span></td></tr>
+<tr><td class="mono">a₂₃</td><td>Chegada de veículo tipo (2→3) na fila da Rua 2</td><td><span class="tag tag-arr">Chegada</span></td><td><span class="tag tag-uc">Não controlável</span></td></tr>
+<tr><td class="mono">a₃₂</td><td>Chegada de veículo tipo (3→2) na fila da Rua 3</td><td><span class="tag tag-arr">Chegada</span></td><td><span class="tag tag-uc">Não controlável</span></td></tr>
+<tr><td class="mono">d₁₂</td><td>Partida de veículo tipo (1→2) — cruza a interseção</td><td><span class="tag tag-dep">Partida</span></td><td><span class="tag tag-uc">Não controlável</span></td></tr>
+<tr><td class="mono">d₁₃</td><td>Partida de veículo tipo (1→3) — cruza a interseção</td><td><span class="tag tag-dep">Partida</span></td><td><span class="tag tag-uc">Não controlável</span></td></tr>
+<tr><td class="mono">d₂₃</td><td>Partida de veículo tipo (2→3) — cruza a interseção</td><td><span class="tag tag-dep">Partida</span></td><td><span class="tag tag-uc">Não controlável</span></td></tr>
+<tr><td class="mono">d₃₂</td><td>Partida de veículo tipo (3→2) — cruza a interseção</td><td><span class="tag tag-dep">Partida</span></td><td><span class="tag tag-uc">Não controlável</span></td></tr>
+<tr><td class="mono">g</td><td>Semáforo muda para verde para Rua 1</td><td><span class="tag tag-sig">Sinal</span></td><td><span class="tag tag-go">Controlável</span></td></tr>
+<tr><td class="mono">r</td><td>Semáforo muda para vermelho para Rua 1</td><td><span class="tag tag-sig">Sinal</span></td><td><span class="tag tag-go">Controlável</span></td></tr>
+</tbody>
+</table>
+<div class="note">Σ = {a₁₂, a₁₃, a₂₃, a₃₂, d₁₂, d₁₃, d₂₃, d₃₂, g, r} — 10 eventos. Chegadas são sempre possíveis. Partidas dependem do semáforo e da fila.</div>
+
+<!-- SECTION 3 -->
+<h2><span class="num">3.</span> Condições para cada evento</h2>
+<table>
+<thead><tr><th>EVENTO</th><th>CONDIÇÃO PARA OCORRÊNCIA</th></tr></thead>
+<tbody>
+<tr><td class="mono">a₁₂</td><td>Sempre possível (veículo chega querendo ir de 1 para 2)</td></tr>
+<tr><td class="mono">a₁₃</td><td>Sempre possível (veículo chega querendo ir de 1 para 3)</td></tr>
+<tr><td class="mono">a₂₃</td><td>Sempre possível (veículo chega querendo ir de 2 para 3)</td></tr>
+<tr><td class="mono">a₃₂</td><td>Sempre possível (veículo chega querendo ir de 3 para 2)</td></tr>
+<tr><td class="mono">d₁₂</td><td>Semáforo em <span class="truth-go">Fase G</span> AND x₁₂ > 0</td></tr>
+<tr><td class="mono">d₁₃</td><td>Semáforo em <span class="truth-go">Fase G</span> AND x₁₃ > 0</td></tr>
+<tr><td class="mono">d₂₃</td><td>Semáforo em <span class="truth-stop">Fase R</span> AND x₂₃ > 0</td></tr>
+<tr><td class="mono">d₃₂</td><td>Semáforo em <span class="truth-stop">Fase R</span> AND x₃₂ > 0</td></tr>
+<tr><td class="mono">g</td><td>Semáforo em <span class="truth-stop">Fase R</span> (controlador decide trocar)</td></tr>
+<tr><td class="mono">r</td><td>Semáforo em <span class="truth-go">Fase G</span> (controlador decide trocar)</td></tr>
+</tbody>
+</table>
+
+<!-- SECTION 4 -->
+<h2><span class="num">4.</span> Tabela-verdade: o que cada rua vê</h2>
+<table>
+<thead>
+<tr><th></th><th colspan="2" style="text-align:center;border-left:1px solid rgba(255,255,255,.08)">FASE G (Rua 1 Verde)</th><th colspan="2" style="text-align:center;border-left:1px solid rgba(255,255,255,.08)">FASE R (Ruas 2/3 Verde)</th></tr>
+<tr><th>RUA</th><th style="border-left:1px solid rgba(255,255,255,.08)">SINAL</th><th>PARTIDAS</th><th style="border-left:1px solid rgba(255,255,255,.08)">SINAL</th><th>PARTIDAS</th></tr>
+</thead>
+<tbody>
+<tr><td style="font-weight:600">Rua 1</td><td class="truth-go" style="border-left:1px solid rgba(255,255,255,.08)">VERDE</td><td class="mono">d₁₂, d₁₃</td><td class="truth-stop" style="border-left:1px solid rgba(255,255,255,.08)">VERMELHO</td><td class="truth-stop">Nenhuma</td></tr>
+<tr><td style="font-weight:600">Rua 2</td><td class="truth-stop" style="border-left:1px solid rgba(255,255,255,.08)">VERMELHO</td><td class="truth-stop">Nenhuma</td><td class="truth-go" style="border-left:1px solid rgba(255,255,255,.08)">VERDE</td><td class="mono">d₂₃</td></tr>
+<tr><td style="font-weight:600">Rua 3</td><td class="truth-stop" style="border-left:1px solid rgba(255,255,255,.08)">VERMELHO</td><td class="truth-stop">Nenhuma</td><td class="truth-go" style="border-left:1px solid rgba(255,255,255,.08)">VERDE</td><td class="mono">d₃₂</td></tr>
+</tbody>
+</table>
+<div class="note"><strong>Chegadas (aᵢⱼ) ocorrem em QUALQUER fase.</strong> Apenas as partidas (dᵢⱼ) dependem da fase.</div>
+
+<!-- SECTION 5 -->
+<h2><span class="num">5.</span> Matriz de compatibilidade</h2>
+<table class="compat">
+<thead><tr><th class="header-cell"></th><th class="header-cell">(1→2)</th><th class="header-cell">(1→3)</th><th class="header-cell">(2→3)</th><th class="header-cell">(3→2)</th></tr></thead>
+<tbody>
+<tr><td class="header-cell">(1→2)</td><td class="na">—</td><td class="yes">✓ SIM</td><td class="no">✗ NÃO</td><td class="no">✗ NÃO</td></tr>
+<tr><td class="header-cell">(1→3)</td><td class="yes">✓ SIM</td><td class="na">—</td><td class="no">✗ NÃO</td><td class="no">✗ NÃO</td></tr>
+<tr><td class="header-cell">(2→3)</td><td class="no">✗ NÃO</td><td class="no">✗ NÃO</td><td class="na">—</td><td class="yes">✓ SIM</td></tr>
+<tr><td class="header-cell">(3→2)</td><td class="no">✗ NÃO</td><td class="no">✗ NÃO</td><td class="yes">✓ SIM</td><td class="na">—</td></tr>
+</tbody>
+</table>
+<div class="note">Dois movimentos são <strong>compatíveis (✓)</strong> se podem ocorrer ao mesmo tempo sem colisão. Isso define as duas fases do semáforo.</div>
+
+<!-- SECTION 6 -->
+<h2><span class="num">6.</span> Espaço de estados</h2>
+<div class="state-box">
+  <span class="label">Definição formal:</span>
+  <span class="eq">X</span> = { (<span class="sym">x₁₂</span>, <span class="sym">x₁₃</span>, <span class="sym">x₂₃</span>, <span class="sym">x₃₂</span>, <span class="sym">y</span>) : <span class="sym">xᵢⱼ</span> ≥ 0,  <span class="sym">y</span> ∈ {<span class="set">G</span>, <span class="set">R</span>} }
+</div>
+<table>
+<thead><tr><th>VARIÁVEL</th><th>SIGNIFICADO</th><th>DOMÍNIO</th></tr></thead>
+<tbody>
+<tr><td class="mono">x₁₂</td><td>Fila de veículos tipo (1→2) na Rua 1</td><td>{0, 1, 2, ...}</td></tr>
+<tr><td class="mono">x₁₃</td><td>Fila de veículos tipo (1→3) na Rua 1</td><td>{0, 1, 2, ...}</td></tr>
+<tr><td class="mono">x₂₃</td><td>Fila de veículos tipo (2→3) na Rua 2</td><td>{0, 1, 2, ...}</td></tr>
+<tr><td class="mono">x₃₂</td><td>Fila de veículos tipo (3→2) na Rua 3</td><td>{0, 1, 2, ...}</td></tr>
+<tr><td class="mono">y</td><td>Estado do semáforo</td><td>{G, R}</td></tr>
+</tbody>
+</table>
+
+<!-- SECTION 7 -->
+<h2><span class="num">7.</span> Função de transição</h2>
+<table>
+<thead><tr><th>EVENTO</th><th>TRANSIÇÃO</th><th>REQUISITO</th></tr></thead>
+<tbody>
+<tr><td class="mono">a₁₂</td><td class="mono">x₁₂ → x₁₂ + 1</td><td>Nenhum</td></tr>
+<tr><td class="mono">a₁₃</td><td class="mono">x₁₃ → x₁₃ + 1</td><td>Nenhum</td></tr>
+<tr><td class="mono">a₂₃</td><td class="mono">x₂₃ → x₂₃ + 1</td><td>Nenhum</td></tr>
+<tr><td class="mono">a₃₂</td><td class="mono">x₃₂ → x₃₂ + 1</td><td>Nenhum</td></tr>
+<tr><td class="mono">d₁₂</td><td class="mono">x₁₂ → x₁₂ − 1</td><td>y = G  AND  x₁₂ > 0</td></tr>
+<tr><td class="mono">d₁₃</td><td class="mono">x₁₃ → x₁₃ − 1</td><td>y = G  AND  x₁₃ > 0</td></tr>
+<tr><td class="mono">d₂₃</td><td class="mono">x₂₃ → x₂₃ − 1</td><td>y = R  AND  x₂₃ > 0</td></tr>
+<tr><td class="mono">d₃₂</td><td class="mono">x₃₂ → x₃₂ − 1</td><td>y = R  AND  x₃₂ > 0</td></tr>
+<tr><td class="mono">g</td><td class="mono">y → G</td><td>y = R</td></tr>
+<tr><td class="mono">r</td><td class="mono">y → R</td><td>y = G</td></tr>
+</tbody>
+</table>
+
+<!-- SECTION 8 -->
+<h2><span class="num">8.</span> Ciclo completo de operação</h2>
+<table>
+<thead><tr><th>PASSO</th><th>EVENTO</th><th>RUA 1</th><th>RUA 2</th><th>RUA 3</th></tr></thead>
+<tbody>
+<tr><td style="font-weight:600">1</td><td class="mono" style="color:var(--yellow)">g</td><td style="color:var(--green)">Sinal abre</td><td style="color:var(--red)">Sinal fecha</td><td style="color:var(--red)">Sinal fecha</td></tr>
+<tr><td style="font-weight:600">2</td><td class="mono" style="color:var(--green)">d₁₂, d₁₃</td><td>Veículos partem</td><td>Fila cresce</td><td>Fila cresce</td></tr>
+<tr><td style="font-weight:600">3</td><td class="mono" style="color:var(--yellow)">r</td><td style="color:var(--red)">Sinal fecha</td><td style="color:var(--green)">Sinal abre</td><td style="color:var(--green)">Sinal abre</td></tr>
+<tr><td style="font-weight:600">4</td><td class="mono" style="color:var(--blue)">d₂₃, d₃₂</td><td>Fila cresce</td><td>Veículos partem</td><td>Veículos partem</td></tr>
+<tr><td style="font-weight:600">5</td><td colspan="4" style="color:var(--tx3)">→ Volta ao passo 1 (ciclo infinito)</td></tr>
+</tbody>
+</table>
+
+<!-- SECTION 9: Restrictions -->
+<h2><span class="num">9.</span> Restrições de coordenação</h2>
+<table>
+<thead><tr><th>#</th><th>RESTRIÇÃO</th><th>EFEITO</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Movimentos (1→2)/(1→3) não podem coexistir com (2→3)/(3→2)</td><td>Define as 2 fases do semáforo</td></tr>
+<tr><td>2</td><td>Veículo só parte se há fila (xᵢⱼ > 0)</td><td>dᵢⱼ requer fila não vazia</td></tr>
+<tr><td>3</td><td>Sinal só muda para o estado oposto</td><td>g requer y=R, r requer y=G</td></tr>
+<tr><td>4</td><td>Chegadas são sempre possíveis</td><td>aᵢⱼ independe do estado</td></tr>
+</tbody>
+</table>
+
+<div class="footer">
+  Modelo baseado no exemplo da Interseção T — Cassandras & Lafortune (2008) e Cury (2001)<br>
+  Σ = {a₁₂, a₁₃, a₂₃, a₃₂, d₁₂, d₁₃, d₂₃, d₃₂, g, r} · |Σ| = 10 eventos · |Fases| = 2
+</div>
+
+</div>
+
+<script>
+var phase = 'none';
+var autoTimer = null;
+
+function setPhase(p) {
+  phase = p;
+  clearInterval(autoTimer); autoTimer = null;
+  document.getElementById('btn-auto').textContent = '▶ Auto';
+  render();
+}
+
+function toggleAuto() {
+  if (autoTimer) {
+    clearInterval(autoTimer); autoTimer = null;
+    document.getElementById('btn-auto').textContent = '▶ Auto'; return;
+  }
+  var phases = ['g','r'], idx = 0;
+  phase = phases[0]; render();
+  autoTimer = setInterval(function() { idx = (idx+1)%2; phase = phases[idx]; render(); }, 2500);
+  document.getElementById('btn-auto').textContent = '⏸ Parar';
+}
+
+function render() {
+  ['none','g','r'].forEach(function(p) {
+    var btn = document.getElementById('btn-' + p);
+    btn.className = 'phase-btn' + (phase === p ? (p==='g' ? ' active-g' : p==='r' ? ' active-r' : ' active-y') : '');
+  });
+
+  var lr1 = document.getElementById('light-r1');
+  var lr2 = document.getElementById('light-r2');
+  var lr3 = document.getElementById('light-r3');
+
+  if (phase === 'g') {
+    lr1.setAttribute('fill','#34d399'); lr1.setAttribute('opacity','1');
+    lr2.setAttribute('fill','#f87171'); lr2.setAttribute('opacity','1');
+    lr3.setAttribute('fill','#f87171'); lr3.setAttribute('opacity','1');
+    document.getElementById('arrows-g').setAttribute('opacity','1');
+    document.getElementById('arrows-r').setAttribute('opacity','0');
+    document.getElementById('stop-g').setAttribute('opacity','1');
+    document.getElementById('stop-r').setAttribute('opacity','0');
+  } else if (phase === 'r') {
+    lr1.setAttribute('fill','#f87171'); lr1.setAttribute('opacity','1');
+    lr2.setAttribute('fill','#34d399'); lr2.setAttribute('opacity','1');
+    lr3.setAttribute('fill','#34d399'); lr3.setAttribute('opacity','1');
+    document.getElementById('arrows-g').setAttribute('opacity','0');
+    document.getElementById('arrows-r').setAttribute('opacity','1');
+    document.getElementById('stop-g').setAttribute('opacity','0');
+    document.getElementById('stop-r').setAttribute('opacity','1');
+  } else {
+    [lr1,lr2,lr3].forEach(function(l){ l.setAttribute('fill','#444'); l.setAttribute('opacity','.5'); });
+    document.getElementById('arrows-g').setAttribute('opacity','0');
+    document.getElementById('arrows-r').setAttribute('opacity','0');
+    document.getElementById('stop-g').setAttribute('opacity','0');
+    document.getElementById('stop-r').setAttribute('opacity','0');
+  }
+
+  var desc = document.getElementById('phase-desc');
+  if (phase==='g') desc.innerHTML = '<span style="color:#34d399">Fase G</span> — Rua 1 com verde · Ruas 2 e 3 com vermelho';
+  else if (phase==='r') desc.innerHTML = '<span style="color:#f87171">Fase R</span> — Rua 1 com vermelho · Ruas 2 e 3 com verde';
+  else desc.textContent = 'Selecione uma fase para ver os movimentos permitidos';
+
+  if (phase==='g') {
+    setCard('sc1','go','sig1','🟢','mov1','Partem: (1→2) e (1→3)');
+    setCard('sc2','stop','sig2','🔴','mov2','Aguardando');
+    setCard('sc3','stop','sig3','🔴','mov3','Aguardando');
+  } else if (phase==='r') {
+    setCard('sc1','stop','sig1','🔴','mov1','Aguardando');
+    setCard('sc2','go','sig2','🟢','mov2','Partem: (2→3)');
+    setCard('sc3','go','sig3','🟢','mov3','Partem: (3→2)');
+  } else {
+    setCard('sc1','','sig1','—','mov1','—');
+    setCard('sc2','','sig2','—','mov2','—');
+    setCard('sc3','','sig3','—','mov3','—');
+  }
+}
+
+function setCard(sid,cls,iid,sig,mid,mv) {
+  document.getElementById(sid).className = 'st-card' + (cls ? ' '+cls : '');
+  document.getElementById(iid).textContent = sig;
+  document.getElementById(mid).textContent = mv;
+}
+
+render();
+</script>
+</body>
+</html>
