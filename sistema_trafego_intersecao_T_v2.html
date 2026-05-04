@@ -135,30 +135,15 @@ td { padding: 8px 10px; border-bottom: 1px solid var(--brd); vertical-align: top
 
   <!-- INTERSECTION BOX -->
   <rect x="200" y="160" width="160" height="160" fill="#323842" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
-
-  <!-- ============================================ -->
-  <!-- TRAFFIC LIGHT: central box + 3 semi-circles -->
-  <!-- Center of intersection = (280, 240)         -->
-  <!-- Box: 30x30 centered at (280, 240)           -->
-  <!-- Semi-circles protrude from left, top, bottom -->
-  <!-- ============================================ -->
-
-  <!-- Central controller box -->
+  
   <rect x="265" y="225" width="30" height="30" rx="2" fill="#111318" stroke="rgba(255,255,255,.25)" stroke-width="1.5"/>
 
-  <!-- Semi-circle facing LEFT (Rua 1 sees this) -->
-  <!-- Arc from (265, 225) to (265, 255) bulging left with radius 15 -->
   <path id="light-r1" d="M265 227 A14 14 0 0 0 265 253" fill="#444" stroke="rgba(255,255,255,.25)" stroke-width="1.5"/>
 
-  <!-- Semi-circle facing TOP (Rua 2 sees this — traffic coming from above) -->
-  <!-- Arc from (267, 225) to (293, 225) bulging upward with radius 13 -->
   <path id="light-r2" d="M267 225 A13 13 0 0 1 293 225" fill="#444" stroke="rgba(255,255,255,.25)" stroke-width="1.5"/>
 
-  <!-- Semi-circle facing BOTTOM (Rua 3 sees this — traffic coming from below) -->
-  <!-- Arc from (267, 255) to (293, 255) bulging downward with radius 13 -->
   <path id="light-r3" d="M267 255 A13 13 0 0 0 293 255" fill="#444" stroke="rgba(255,255,255,.25)" stroke-width="1.5"/>
 
-  <!-- Tiny labels next to each semi-circle -->
   <text x="240" y="244" text-anchor="middle" font-family="DM Sans" font-size="8" font-weight="600" fill="rgba(255,255,255,.3)">R1</text>
   <text x="280" y="204" text-anchor="middle" font-family="DM Sans" font-size="8" font-weight="600" fill="rgba(255,255,255,.3)">R2</text>
   <text x="280" y="278" text-anchor="middle" font-family="DM Sans" font-size="8" font-weight="600" fill="rgba(255,255,255,.3)">R3</text>
