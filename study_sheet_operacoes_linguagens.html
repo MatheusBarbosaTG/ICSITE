@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ficha de Estudo — Operações sobre Linguagens</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1117; --bg2: #181b24; --bg3: #22262f; --bg4: #2c313c;
+  --tx: #e4e6ed; --tx2: #9da2b0; --tx3: #636879;
+  --brd: rgba(255,255,255,.08);
+  --green: #34d399; --green-bg: rgba(52,211,153,.1);
+  --red: #f87171; --red-bg: rgba(248,113,113,.1);
+  --yellow: #fbbf24; --yellow-bg: rgba(251,191,36,.1);
+  --blue: #60a5fa; --blue-bg: rgba(96,165,250,.1);
+  --purple: #a78bfa; --purple-bg: rgba(167,139,250,.12);
+  --cyan: #22d3ee; --cyan-bg: rgba(34,211,238,.1);
+  --orange: #fb923c; --orange-bg: rgba(251,146,60,.1);
+  --pink: #f472b6; --pink-bg: rgba(244,114,182,.1);
+  --font: 'DM Sans', sans-serif; --mono: 'JetBrains Mono', monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--tx);line-height:1.6}
+.container{max-width:780px;margin:0 auto;padding:32px 20px 60px}
+
+.hdr{margin-bottom:32px}
+.hdr .chap{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--blue);text-transform:uppercase;margin-bottom:4px}
+.hdr h1{font-size:22px;font-weight:700;letter-spacing:-.3px;line-height:1.3}
+.hdr p{font-size:13px;color:var(--tx3);margin-top:4px}
+.hdr .src{font-size:11px;color:var(--tx3);margin-top:2px;font-style:italic}
+
+h2{font-size:16px;font-weight:600;margin:36px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--brd)}
+h2 .num{color:var(--tx3);font-weight:400;margin-right:6px}
+h3{font-size:14px;font-weight:600;margin:24px 0 8px;color:var(--tx2)}
+.prose{font-size:13.5px;color:var(--tx2);line-height:1.75;margin-bottom:16px}
+.prose strong{color:var(--tx)}
+.mono{font-family:var(--mono);font-size:11.5px}
+
+.tag{display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:600;letter-spacing:.2px;vertical-align:middle}
+.tag-op{background:var(--purple-bg);color:var(--purple)}
+
+/* DEF BOX */
+.def-box{
+  background:var(--bg2);border:1.5px solid rgba(96,165,250,.25);border-radius:12px;
+  padding:20px 22px;margin:16px 0;position:relative;
+}
+.def-box::before{
+  content:attr(data-label);position:absolute;top:-9px;left:18px;
+  background:var(--bg);padding:0 8px;font-size:10px;font-weight:700;
+  letter-spacing:1.2px;color:var(--blue);
+}
+.def-box .def-text{font-size:13.5px;color:var(--tx);line-height:1.8}
+.def-box .def-text em{color:var(--blue);font-style:normal;font-weight:600}
+.def-box.green{border-color:rgba(52,211,153,.25)}
+.def-box.green::before{color:var(--green)}
+.def-box.purple{border-color:rgba(167,139,250,.25)}
+.def-box.purple::before{color:var(--purple)}
+.def-box.orange{border-color:rgba(251,146,60,.25)}
+.def-box.orange::before{color:var(--orange)}
+.def-box.cyan{border-color:rgba(34,211,238,.25)}
+.def-box.cyan::before{color:var(--cyan)}
+
+/* LANG BOX */
+.lang-box{
+  background:var(--bg2);border:1px solid var(--brd);border-radius:10px;
+  padding:16px 20px;margin:12px 0 16px;font-family:var(--mono);font-size:12.5px;line-height:2;
+}
+.lang-box .label{color:var(--tx3);font-family:var(--font);font-size:11px;display:block;margin-bottom:4px;font-weight:600;letter-spacing:.5px}
+.lang-box .eq{color:var(--blue)}.lang-box .set{color:var(--green)}
+.lang-box .sym{color:var(--yellow)}.lang-box .op{color:var(--purple)}
+
+/* OPERATION CARDS */
+.op-scene{
+  background:var(--bg2);border:1px solid var(--brd);border-radius:14px;
+  padding:20px 22px;margin:14px 0 20px;
+}
+.op-label{font-size:11px;font-weight:600;letter-spacing:1px;color:var(--tx3);text-transform:uppercase;margin-bottom:14px}
+
+/* PILL TAGS for strings */
+.pill{
+  display:inline-block;padding:4px 10px;border-radius:7px;
+  font-family:var(--mono);font-size:11.5px;margin:2px 3px;
+  border:1px solid var(--brd);background:var(--bg3);color:var(--tx2);
+  transition:all .3s;
+}
+.pill.src-a{border-color:rgba(96,165,250,.3);color:var(--blue)}
+.pill.src-b{border-color:rgba(251,191,36,.3);color:var(--yellow)}
+.pill.result{border-color:rgba(52,211,153,.3);color:var(--green);background:var(--green-bg)}
+.pill.result-p{border-color:rgba(167,139,250,.3);color:var(--purple);background:var(--purple-bg)}
+.pill.new{border-color:rgba(251,146,60,.3);color:var(--orange);background:var(--orange-bg)}
+.pill.fade{opacity:.4}
+
+.op-eq{
+  font-family:var(--mono);font-size:13px;color:var(--tx);
+  margin:10px 0;line-height:2;
+}
+.op-eq .lbl{color:var(--tx3);font-family:var(--font);font-size:11px;font-weight:600}
+
+/* STEP ROWS for showing concatenation process */
+.step-row{
+  display:flex;align-items:center;gap:6px;margin:6px 0;flex-wrap:wrap;
+  font-family:var(--mono);font-size:12px;color:var(--tx2);
+}
+.step-row .connector{color:var(--tx3);font-size:10px;padding:0 2px}
+.step-row .arrow{color:var(--green);font-size:14px;padding:0 4px}
+
+/* SELECTOR BAR */
+.sel-bar{display:flex;justify-content:center;gap:8px;margin:14px 0 6px;flex-wrap:wrap}
+.sel-btn{
+  padding:7px 16px;border:1.5px solid var(--brd);border-radius:10px;
+  font-family:var(--font);font-size:12px;font-weight:500;
+  background:var(--bg2);color:var(--tx2);cursor:pointer;transition:all .2s;
+}
+.sel-btn:hover{background:var(--bg3);color:var(--tx)}
+.sel-btn.act{border-color:var(--green);color:var(--green);background:var(--green-bg)}
+.sel-btn.act-p{border-color:var(--purple);color:var(--purple);background:var(--purple-bg)}
+.sel-btn.act-b{border-color:var(--blue);color:var(--blue);background:var(--blue-bg)}
+.sel-btn.act-o{border-color:var(--orange);color:var(--orange);background:var(--orange-bg)}
+.sel-btn.act-c{border-color:var(--cyan);color:var(--cyan);background:var(--cyan-bg)}
+
+.op-result{text-align:center;font-size:13px;font-weight:500;min-height:24px;margin:8px 0 0}
+
+/* INFINITE SCROLL */
+.inf-scroll{
+  position:relative;background:var(--bg3);border:1px solid var(--brd);border-radius:10px;
+  padding:10px 14px;margin:8px 0;overflow:hidden;
+}
+.inf-track{
+  display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;
+  scrollbar-width:thin;scrollbar-color:var(--bg4) transparent;
+}
+.inf-track::-webkit-scrollbar{height:4px}
+.inf-track::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:4px}
+.inf-chip{
+  flex-shrink:0;padding:5px 10px;border-radius:7px;border:1px solid var(--brd);
+  background:var(--bg2);font-family:var(--mono);font-size:11px;color:var(--tx2);white-space:nowrap;
+}
+.inf-chip.fade1{opacity:.65}.inf-chip.fade2{opacity:.4}.inf-chip.fade3{opacity:.2}
+.inf-dots{flex-shrink:0;padding:5px 12px;font-size:14px;color:var(--purple);display:flex;align-items:center;letter-spacing:3px}
+
+.note{font-size:11px;color:var(--tx3);line-height:1.6;margin:8px 0}
+.note strong{color:var(--tx2)}
+
+.ex-marker{
+  display:inline-block;padding:3px 10px;border-radius:6px;font-size:10px;font-weight:700;
+  letter-spacing:.8px;margin-bottom:8px;
+}
+.ex-book{background:var(--blue-bg);color:var(--blue)}
+.ex-new{background:var(--green-bg);color:var(--green)}
+
+.footer{text-align:center;font-size:11px;color:var(--tx3);margin-top:40px;padding-top:16px;border-top:1px solid var(--brd)}
+
+@media(max-width:540px){
+  .container{padding:20px 14px 40px}
+  .step-row{font-size:11px}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="hdr">
+  <div class="chap">Capítulo 2 — Linguagens e Autômatos</div>
+  <h1>Operações sobre Linguagens</h1>
+  <p>Concatenação, fecho de prefixo, fecho de Kleene e pós-linguagem</p>
+  <div class="src">Baseado em: Cassandras &amp; Lafortune, "Introduction to Discrete Event Systems", 2ª Ed. — Seção 2.2.1, Exemplo 2.1</div>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION 1: THE FOUR OPERATIONS               -->
+<!-- ============================================ -->
+<h2><span class="num">1.</span> As Quatro Operações</h2>
+
+<p class="prose">
+  Como linguagens são conjuntos, as operações usuais (união, interseção, diferença, complemento em relação a E*) se aplicam naturalmente. Além delas, existem quatro operações específicas:
+</p>
+
+<!-- CONCATENATION -->
+<div class="def-box green" data-label="CONCATENAÇÃO">
+  <div class="def-text">
+    Sejam L<sub>a</sub>, L<sub>b</sub> ⊆ E*. Então:<br>
+    <em>L<sub>a</sub>L<sub>b</sub></em> := { s ∈ E* : s = s<sub>a</sub>s<sub>b</sub> , com s<sub>a</sub> ∈ L<sub>a</sub> e s<sub>b</sub> ∈ L<sub>b</sub> }<br>
+    Uma cadeia pertence a L<sub>a</sub>L<sub>b</sub> se pode ser escrita como a concatenação de uma cadeia de L<sub>a</sub> seguida de uma cadeia de L<sub>b</sub>.
+  </div>
+</div>
+
+<!-- PREFIX-CLOSURE -->
+<div class="def-box purple" data-label="FECHO DE PREFIXO">
+  <div class="def-text">
+    Seja L ⊆ E*. Então:<br>
+    <em style="color:var(--purple)">L̄</em> := { s ∈ E* : (∃t ∈ E*) [ st ∈ L ] }<br>
+    O fecho de prefixo de L é o conjunto de todos os prefixos de todas as cadeias de L.<br>
+    L é dita <em style="color:var(--purple)">prefixo-fechada</em> se L̄ = L (todo prefixo de toda cadeia em L também pertence a L).
+  </div>
+</div>
+
+<!-- KLEENE-CLOSURE -->
+<div class="def-box orange" data-label="FECHO DE KLEENE">
+  <div class="def-text">
+    Seja L ⊆ E*. Então:<br>
+    <em style="color:var(--orange)">L*</em> := {ε} ∪ L ∪ LL ∪ LLL ∪ · · ·<br>
+    Concatenação de 0, 1, 2, 3, ... elementos de L. Inclui ε (0 concatenações).<br>
+    A operação é idempotente: (L*)* = L*.
+  </div>
+</div>
+
+<!-- POST-LANGUAGE -->
+<div class="def-box cyan" data-label="PÓS-LINGUAGEM">
+  <div class="def-text">
+    Sejam L ⊆ E* e s ∈ L̄. Então:<br>
+    <em style="color:var(--cyan)">L/s</em> := { t ∈ E* : st ∈ L }<br>
+    A pós-linguagem de L após s é o conjunto de sufixos que, concatenados com s, formam cadeias de L.<br>
+    Se s ∉ L̄, então L/s = ∅.
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION 2: BOOK EXAMPLE 2.1                  -->
+<!-- ============================================ -->
+<h2><span class="num">2.</span> Exemplo 2.1 do Livro</h2>
+<div class="ex-marker ex-book">EXEMPLO DO LIVRO</div>
+
+<p class="prose">
+  Seja <strong>E = {a, b, g}</strong>. Considere duas linguagens:
+</p>
+
+<div class="lang-box">
+  <span class="label">LINGUAGENS DE PARTIDA</span>
+  <span class="eq">L₁</span> = { <span class="sym">ε</span>, <span class="sym">a</span>, <span class="sym">abb</span> } &nbsp;&nbsp;·&nbsp;&nbsp;
+  <span class="eq">L₄</span> = { <span class="sym">g</span> }
+</div>
+
+<!-- INTERACTIVE OPERATION EXPLORER -->
+<div class="op-scene">
+  <div class="op-label">⚡ Interativo — Selecione uma operação</div>
+
+  <div class="sel-bar" id="sel-ops">
+    <button class="sel-btn" onclick="showOp('concat')">L₁L₄</button>
+    <button class="sel-btn" onclick="showOp('prefix1')">L̄₁</button>
+    <button class="sel-btn" onclick="showOp('prefix4')">L̄₄</button>
+    <button class="sel-btn" onclick="showOp('union')">L₁ ∪ L₄</button>
+    <button class="sel-btn" onclick="showOp('kleene4')">L₄*</button>
+    <button class="sel-btn" onclick="showOp('kleene1')">L₁*</button>
+  </div>
+
+  <div id="op-display" style="margin-top:14px"></div>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION 3: NEW EXAMPLE                       -->
+<!-- ============================================ -->
+<h2><span class="num">3.</span> Exemplo Adicional — Protocolo Simples</h2>
+<div class="ex-marker ex-new">EXEMPLO NOVO</div>
+
+<p class="prose">
+  Seja <strong>E = {p, q, r}</strong>, representando eventos de um protocolo de comunicação: <strong>p</strong> = pedido, <strong>q</strong> = confirmação, <strong>r</strong> = rejeição. Definimos:
+</p>
+
+<div class="lang-box">
+  <span class="label">LINGUAGENS DE PARTIDA</span>
+  <span class="eq">L<sub>a</sub></span> = { <span class="sym">p</span>, <span class="sym">pq</span> } &nbsp;&nbsp;·&nbsp;&nbsp;
+  <span class="eq">L<sub>b</sub></span> = { <span class="sym">r</span>, <span class="sym">qr</span> }
+</div>
+
+<div class="op-scene">
+  <div class="op-label">⚡ Interativo — Selecione uma operação</div>
+
+  <div class="sel-bar" id="sel-ops2">
+    <button class="sel-btn" onclick="showOp2('concat2')">L<sub>a</sub>L<sub>b</sub></button>
+    <button class="sel-btn" onclick="showOp2('prefix2a')">L̄<sub>a</sub></button>
+    <button class="sel-btn" onclick="showOp2('prefix2b')">L̄<sub>b</sub></button>
+    <button class="sel-btn" onclick="showOp2('union2')">L<sub>a</sub> ∪ L<sub>b</sub></button>
+    <button class="sel-btn" onclick="showOp2('kleene2a')">L<sub>a</sub>*</button>
+    <button class="sel-btn" onclick="showOp2('post2')">L<sub>a</sub>/p</button>
+  </div>
+
+  <div id="op-display2" style="margin-top:14px"></div>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION 4: TECHNICAL NOTES                   -->
+<!-- ============================================ -->
+<h2><span class="num">4.</span> Observações Técnicas</h2>
+
+<div class="lang-box">
+  <span class="label">FATOS IMPORTANTES</span>
+  (i) &nbsp; <span class="sym">ε</span> ∉ ∅ &nbsp;&nbsp;·&nbsp;&nbsp;
+  (ii) &nbsp; {<span class="sym">ε</span>} é uma linguagem <em>não-vazia</em> contendo apenas a cadeia vazia<br>
+  (iii) &nbsp; Se L = ∅ então L̄ = ∅ &nbsp;·&nbsp; Se L ≠ ∅ então necessariamente <span class="sym">ε</span> ∈ L̄<br>
+  (iv) &nbsp; ∅* = {<span class="sym">ε</span>} &nbsp;&nbsp;·&nbsp;&nbsp; {<span class="sym">ε</span>}* = {<span class="sym">ε</span>}<br>
+  (v) &nbsp; ∅L = L∅ = ∅<br><br>
+  <span class="label">PRECEDÊNCIA</span>
+  Fecho de prefixo e Kleene primeiro → depois concatenação → depois união, interseção, diferença.
+</div>
+
+<div class="footer">
+  Ficha de Estudo — Cassandras &amp; Lafortune, Cap.2 §2.2.1 — Operações sobre Linguagens<br>
+  4 operações · Exemplo 2.1 (E={a,b,g}) · Exemplo protocolo (E={p,q,r})
+</div>
+
+</div>
+
+<script>
+// ============================================================
+// EXAMPLE 1: Book — E={a,b,g}, L1={ε,a,abb}, L4={g}
+// ============================================================
+var ops = {
+  concat: {
+    title: 'Concatenação: L₁L₄',
+    cls: 'act',
+    html: function() {
+      return '<div class="op-eq"><span class="lbl">OPERAÇÃO</span><br>' +
+        'Cada cadeia de <span style="color:var(--blue)">L₁</span> concatenada com cada cadeia de <span style="color:var(--yellow)">L₄</span></div>' +
+        step('ε', 'g', 'g') +
+        step('a', 'g', 'ag') +
+        step('abb', 'g', 'abbg') +
+        res('L₁L₄ = { g, ag, abbg }');
+    }
+  },
+  prefix1: {
+    title: 'Fecho de Prefixo: L̄₁',
+    cls: 'act-p',
+    html: function() {
+      return '<div class="op-eq"><span class="lbl">OPERAÇÃO</span><br>' +
+        'Todos os prefixos de todas as cadeias de L₁</div>' +
+        prefRow('ε', ['ε']) +
+        prefRow('a', ['ε','a']) +
+        prefRow('abb', ['ε','a','ab','abb']) +
+        res('L̄₁ = { ε, a, ab, abb }') +
+        note('L₁ <b>não</b> é prefixo-fechada, pois <b>ab</b> ∈ L̄₁ mas ab ∉ L₁.');
+    }
+  },
+  prefix4: {
+    title: 'Fecho de Prefixo: L̄₄',
+    cls: 'act-p',
+    html: function() {
+      return '<div class="op-eq"><span class="lbl">OPERAÇÃO</span><br>' +
+        'Todos os prefixos de todas as cadeias de L₄</div>' +
+        prefRow('g', ['ε','g']) +
+        res('L̄₄ = { ε, g }') +
+        note('L₄ <b>não</b> é prefixo-fechada, pois <b>ε</b> ∈ L̄₄ mas ε ∉ L₄.');
+    }
+  },
+  union: {
+    title: 'União: L₁ ∪ L₄',
+    cls: 'act-b',
+    html: function() {
+      return '<div class="op-eq"><span class="lbl">OPERAÇÃO</span><br>' +
+        'Todas as cadeias que pertencem a L₁ <b>ou</b> L₄</div>' +
+        '<div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0">' +
+        pill('ε','src-a') + pill('a','src-a') + pill('abb','src-a') +
+        '<span style="color:var(--tx3);font-size:20px;line-height:30px">∪</span>' +
+        pill('g','src-b') + '</div>' +
+        res('L₁ ∪ L₄ = { ε, a, abb, g, ag, abbg }') +
+        note('O livro lista L₁ ∪ L₄ = { ε, a, abb, g, ag, abbg } mas note que ag e abbg vêm de L₁L₄, não da união pura. A união pura é { ε, a, abb, g }. O livro calcula L₁L₄ ∪ L₁ = resultado mostrado, que inclui as concatenações.');
+    }
+  },
+  kleene4: {
+    title: 'Fecho de Kleene: L₄*',
+    cls: 'act-o',
+    html: function() {
+      return '<div class="op-eq"><span class="lbl">OPERAÇÃO</span><br>' +
+        'L₄* = {ε} ∪ L₄ ∪ L₄L₄ ∪ L₄L₄L₄ ∪ ...</div>' +
+        '<div style="margin:8px 0">' +
+        '<div class="step-row"><span style="color:var(--tx3)">0 cópias:</span>' + pill('ε','result') + '</div>' +
+        '<div class="step-row"><span style="color:var(--tx3)">1 cópia:</span>' + pill('g','result') + '</div>' +
+        '<div class="step-row"><span style="color:var(--tx3)">2 cópias:</span>' + pill('gg','result') + '</div>' +
+        '<div class="step-row"><span style="color:var(--tx3)">3 cópias:</span>' + pill('ggg','result') + '</div>' +
+        '<div class="step-row"><span style="color:var(--tx3)">n cópias:</span>' + pill('g...g','result-p') + '<span style="color:var(--purple);font-size:11px;margin-left:4px">(n vezes)</span></div>' +
+        '</div>' +
+        inf(['ε','g','gg','ggg','gggg','ggggg']) +
+        res('L₄* = { ε, g, gg, ggg, ... } — INFINITA');
+    }
+  },
+  kleene1: {
+    title: 'Fecho de Kleene: L₁*',
+    cls: 'act-o',
+    html: function() {
+      return '<div class="op-eq"><span class="lbl">OPERAÇÃO</span><br>' +
+        'L₁* = {ε} ∪ L₁ ∪ L₁L₁ ∪ L₁L₁L₁ ∪ ...</div>' +
+        '<div style="margin:8px 0">' +
+        '<div class="step-row"><span style="color:var(--tx3)">0 concat.:</span>' + pill('ε','result') + '</div>' +
+        '<div class="step-row"><span style="color:var(--tx3)">1 elem.:</span>' + pill('ε','src-a') + pill('a','src-a') + pill('abb','src-a') + '</div>' +
+        '<div class="step-row"><span style="color:var(--tx3)">2 elem.:</span>' + pill('aa','new') + pill('aabb','new') + pill('abba','new') + pill('abbabb','new') + '<span style="color:var(--tx3);font-size:10px">...</span></div>' +
+        '</div>' +
+        inf(['ε','a','abb','aa','aabb','abba','abbabb','aabba']) +
+        res('L₁* = { ε, a, abb, aa, aabb, abba, abbabb, ... } — INFINITA');
+    }
+  }
+};
+
+function step(a, b, r) {
+  return '<div class="step-row">' +
+    pill(a,'src-a') +
+    '<span class="connector">·</span>' +
+    pill(b,'src-b') +
+    '<span class="arrow">=</span>' +
+    pill(r,'result') +
+    '</div>';
+}
+
+function prefRow(s, prefs) {
+  var h = '<div class="step-row"><span style="color:var(--tx3);min-width:60px">pref(' + s + '):</span>';
+  prefs.forEach(function(p){ h += pill(p, 'result-p'); });
+  return h + '</div>';
+}
+
+function res(txt) {
+  return '<div class="op-result" style="margin-top:12px">' + txt + '</div>';
+}
+
+function note(txt) {
+  return '<div class="note" style="text-align:center;margin-top:6px">' + txt + '</div>';
+}
+
+function pill(txt, cls) {
+  return '<span class="pill ' + cls + '">' + txt + '</span>';
+}
+
+function inf(items) {
+  var h = '<div class="inf-scroll"><div class="inf-track">';
+  items.forEach(function(it, i) {
+    var fc = i > 4 ? ' fade' + Math.min(i-4,3) : '';
+    h += '<div class="inf-chip' + fc + '">' + it + '</div>';
+  });
+  h += '<div class="inf-dots">· · · ∞</div></div></div>';
+  return h;
+}
+
+function showOp(key) {
+  var bar = document.getElementById('sel-ops');
+  bar.querySelectorAll('.sel-btn').forEach(function(b){ b.className = 'sel-btn'; });
+  var keys = Object.keys(ops);
+  var idx = keys.indexOf(key);
+  var btns = bar.querySelectorAll('.sel-btn');
+  if (idx >= 0 && btns[idx]) btns[idx].className = 'sel-btn ' + ops[key].cls;
+
+  document.getElementById('op-display').innerHTML = ops[key].html();
+}
+
+// ============================================================
+// EXAMPLE 2: New — E={p,q,r}, La={p,pq}, Lb={r,qr}
+// ============================================================
+var ops2 = {
+  concat2: {
+    title: 'Concatenação: LaLb',
+    cls: 'act',
+    html: function() {
+      return '<div class="op-eq"><span class="lbl">OPERAÇÃO</span><br>' +
+        'Cada cadeia de <span style="color:var(--blue)">L<sub>a</sub></span> concatenada com cada cadeia de <span style="color:var(--yellow)">L<sub>b</sub></span></div>' +
+        step2('p','r','pr') + step2('p','qr','pqr') +
+        step2('pq','r','pqr') + step2('pq','qr','pqqr') +
+        res('L<sub>a</sub>L<sub>b</sub> = { pr, pqr, pqqr }') +
+        note('<b>pqr</b> aparece duas vezes (p·qr e pq·r) mas no conjunto conta uma só vez.');
+    }
+  },
+  prefix2a: {
+    title: 'Fecho de Prefixo: L̄a',
+    cls: 'act-p',
+    html: function() {
+      return '<div class="op-eq"><span class="lbl">OPERAÇÃO</span><br>' +
+        'Todos os prefixos de todas as cadeias de L<sub>a</sub></div>' +
+        prefRow('p', ['ε','p']) +
+        prefRow('pq', ['ε','p','pq']) +
+        res('L̄<sub>a</sub> = { ε, p, pq }') +
+        note('L<sub>a</sub> <b>não</b> é prefixo-fechada pois <b>ε</b> ∈ L̄<sub>a</sub> mas ε ∉ L<sub>a</sub>.');
+    }
+  },
+  prefix2b: {
+    title: 'Fecho de Prefixo: L̄b',
+    cls: 'act-p',
+    html: function() {
+      return '<div class="op-eq"><span class="lbl">OPERAÇÃO</span><br>' +
+        'Todos os prefixos de todas as cadeias de L<sub>b</sub></div>' +
+        prefRow('r', ['ε','r']) +
+        prefRow('qr', ['ε','q','qr']) +
+        res('L̄<sub>b</sub> = { ε, r, q, qr }') +
+        note('L<sub>b</sub> <b>não</b> é prefixo-fechada pois <b>ε</b> e <b>q</b> ∈ L̄<sub>b</sub> mas não ∈ L<sub>b</sub>.');
+    }
+  },
+  union2: {
+    title: 'União: La ∪ Lb',
+    cls: 'act-b',
+    html: function() {
+      return '<div class="op-eq"><span class="lbl">OPERAÇÃO</span><br>' +
+        'Todas as cadeias que pertencem a L<sub>a</sub> <b>ou</b> L<sub>b</sub></div>' +
+        '<div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0">' +
+        pill('p','src-a') + pill('pq','src-a') +
+        '<span style="color:var(--tx3);font-size:20px;line-height:30px">∪</span>' +
+        pill('r','src-b') + pill('qr','src-b') + '</div>' +
+        res('L<sub>a</sub> ∪ L<sub>b</sub> = { p, pq, r, qr }');
+    }
+  },
+  kleene2a: {
+    title: 'Fecho de Kleene: La*',
+    cls: 'act-o',
+    html: function() {
+      return '<div class="op-eq"><span class="lbl">OPERAÇÃO</span><br>' +
+        'L<sub>a</sub>* = {ε} ∪ L<sub>a</sub> ∪ L<sub>a</sub>L<sub>a</sub> ∪ ...</div>' +
+        '<div style="margin:8px 0">' +
+        '<div class="step-row"><span style="color:var(--tx3)">0 concat.:</span>' + pill('ε','result') + '</div>' +
+        '<div class="step-row"><span style="color:var(--tx3)">1 elem.:</span>' + pill('p','src-a') + pill('pq','src-a') + '</div>' +
+        '<div class="step-row"><span style="color:var(--tx3)">2 elem.:</span>' + pill('pp','new') + pill('ppq','new') + pill('pqp','new') + pill('pqpq','new') + '</div>' +
+        '<div class="step-row"><span style="color:var(--tx3)">3 elem.:</span>' + pill('ppp','new') + pill('pppq','new') + pill('ppqp','new') + '<span style="color:var(--tx3);font-size:10px">...</span></div>' +
+        '</div>' +
+        inf(['ε','p','pq','pp','ppq','pqp','pqpq','ppp','pppq']) +
+        res('L<sub>a</sub>* = { ε, p, pq, pp, ppq, pqp, pqpq, ... } — INFINITA');
+    }
+  },
+  post2: {
+    title: 'Pós-linguagem: La/p',
+    cls: 'act-c',
+    html: function() {
+      return '<div class="op-eq"><span class="lbl">OPERAÇÃO</span><br>' +
+        'L<sub>a</sub>/p = { t ∈ E* : <b>p</b>·t ∈ L<sub>a</sub> }</div>' +
+        '<div style="margin:8px 0">' +
+        '<div class="step-row"><span style="color:var(--tx3)">p ∈ L<sub>a</sub>?</span> <span style="color:var(--green)">Sim</span> → p = p·<b>ε</b> → ' + pill('ε','result') + '</div>' +
+        '<div class="step-row"><span style="color:var(--tx3)">pq ∈ L<sub>a</sub>?</span> <span style="color:var(--green)">Sim</span> → pq = p·<b>q</b> → ' + pill('q','result') + '</div>' +
+        '</div>' +
+        res('L<sub>a</sub>/p = { ε, q }') +
+        note('p é prefixo de ambas as cadeias de L<sub>a</sub>, então extraímos os sufixos após p.');
+    }
+  }
+};
+
+function step2(a, b, r) {
+  return '<div class="step-row">' +
+    pill(a,'src-a') +
+    '<span class="connector">·</span>' +
+    pill(b,'src-b') +
+    '<span class="arrow">=</span>' +
+    pill(r,'result') +
+    '</div>';
+}
+
+function showOp2(key) {
+  var bar = document.getElementById('sel-ops2');
+  bar.querySelectorAll('.sel-btn').forEach(function(b){ b.className = 'sel-btn'; });
+  var keys = Object.keys(ops2);
+  var idx = keys.indexOf(key);
+  var btns = bar.querySelectorAll('.sel-btn');
+  if (idx >= 0 && btns[idx]) btns[idx].className = 'sel-btn ' + ops2[key].cls;
+
+  document.getElementById('op-display2').innerHTML = ops2[key].html();
+}
+
+// Init defaults
+showOp('concat');
+showOp2('concat2');
+</script>
+</body>
+</html>

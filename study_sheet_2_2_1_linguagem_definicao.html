@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ficha de Estudo — Definição de Linguagem, Prefixo, Sufixo e Subcadeia</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1117; --bg2: #181b24; --bg3: #22262f; --bg4: #2c313c;
+  --tx: #e4e6ed; --tx2: #9da2b0; --tx3: #636879;
+  --brd: rgba(255,255,255,.08);
+  --green: #34d399; --green-bg: rgba(52,211,153,.1);
+  --red: #f87171; --red-bg: rgba(248,113,113,.1);
+  --yellow: #fbbf24; --yellow-bg: rgba(251,191,36,.1);
+  --blue: #60a5fa; --blue-bg: rgba(96,165,250,.1);
+  --purple: #a78bfa; --purple-bg: rgba(167,139,250,.12);
+  --cyan: #22d3ee; --cyan-bg: rgba(34,211,238,.1);
+  --orange: #fb923c; --orange-bg: rgba(251,146,60,.1);
+  --font: 'DM Sans', sans-serif; --mono: 'JetBrains Mono', monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--tx);line-height:1.6}
+.container{max-width:780px;margin:0 auto;padding:32px 20px 60px}
+
+.hdr{margin-bottom:32px}
+.hdr .chap{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--blue);text-transform:uppercase;margin-bottom:4px}
+.hdr h1{font-size:22px;font-weight:700;letter-spacing:-.3px;line-height:1.3}
+.hdr p{font-size:13px;color:var(--tx3);margin-top:4px}
+.hdr .src{font-size:11px;color:var(--tx3);margin-top:2px;font-style:italic}
+
+h2{font-size:16px;font-weight:600;margin:36px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--brd)}
+h2 .num{color:var(--tx3);font-weight:400;margin-right:6px}
+h3{font-size:14px;font-weight:600;margin:24px 0 8px;color:var(--tx2)}
+.prose{font-size:13.5px;color:var(--tx2);line-height:1.75;margin-bottom:16px}
+.prose strong{color:var(--tx)}
+.mono{font-family:var(--mono);font-size:11.5px}
+
+.tag{display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:600;letter-spacing:.2px;vertical-align:middle}
+.tag-def{background:var(--blue-bg);color:var(--blue)}
+.tag-finite{background:var(--green-bg);color:var(--green)}
+.tag-infinite{background:var(--purple-bg);color:var(--purple)}
+.tag-prefix{background:var(--cyan-bg);color:var(--cyan)}
+.tag-suffix{background:var(--orange-bg);color:var(--orange)}
+.tag-sub{background:var(--yellow-bg);color:var(--yellow)}
+
+/* DEFINITION BOX */
+.def-box{
+  background:var(--bg2);border:1.5px solid rgba(96,165,250,.25);border-radius:12px;
+  padding:20px 22px;margin:16px 0;position:relative;
+}
+.def-box::before{
+  content:'DEFINIÇÃO';position:absolute;top:-9px;left:18px;
+  background:var(--bg);padding:0 8px;font-size:10px;font-weight:700;
+  letter-spacing:1.2px;color:var(--blue);
+}
+.def-box .def-text{font-size:13.5px;color:var(--tx);line-height:1.7}
+.def-box .def-text em{color:var(--blue);font-style:normal;font-weight:600}
+
+/* LANG BOX */
+.lang-box{
+  background:var(--bg2);border:1px solid var(--brd);border-radius:10px;
+  padding:16px 20px;margin:12px 0 16px;font-family:var(--mono);font-size:12.5px;line-height:2;
+}
+.lang-box .label{color:var(--tx3);font-family:var(--font);font-size:11px;display:block;margin-bottom:4px;font-weight:600;letter-spacing:.5px}
+.lang-box .eq{color:var(--blue)}.lang-box .set{color:var(--green)}
+.lang-box .sym{color:var(--yellow)}.lang-box .op{color:var(--purple)}
+
+/* STRING GRID for L2 expansion */
+.str-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));
+  gap:6px;margin:12px 0 16px;
+}
+.str-cell{
+  padding:8px 6px;border-radius:8px;border:1px solid var(--brd);background:var(--bg2);
+  text-align:center;font-family:var(--mono);font-size:12px;color:var(--tx2);
+  transition:all .3s;
+}
+.str-cell:hover{border-color:var(--green);color:var(--green);background:var(--green-bg)}
+.str-cell.head{background:var(--bg3);color:var(--tx3);font-family:var(--font);font-size:10px;font-weight:600;letter-spacing:.5px;border:none}
+
+/* INFINITE SCROLL VISUAL */
+.inf-scroll{
+  position:relative;background:var(--bg2);border:1px solid var(--brd);border-radius:12px;
+  padding:16px 20px;margin:12px 0 16px;overflow:hidden;
+}
+.inf-scroll .inf-label{font-size:11px;font-weight:600;letter-spacing:.5px;color:var(--tx3);margin-bottom:10px}
+.inf-track{
+  display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;
+  scrollbar-width:thin;scrollbar-color:var(--bg4) transparent;
+}
+.inf-track::-webkit-scrollbar{height:4px}
+.inf-track::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:4px}
+.inf-chip{
+  flex-shrink:0;padding:6px 12px;border-radius:8px;border:1px solid var(--brd);
+  background:var(--bg3);font-family:var(--mono);font-size:11.5px;color:var(--tx2);
+  white-space:nowrap;
+}
+.inf-chip.fade1{opacity:.7}.inf-chip.fade2{opacity:.45}.inf-chip.fade3{opacity:.25}
+.inf-dots{
+  flex-shrink:0;padding:6px 16px;font-size:16px;color:var(--purple);
+  display:flex;align-items:center;letter-spacing:3px;
+}
+
+/* PREFIX / SUFFIX / SUBSTRING VISUAL */
+.decomp-scene{
+  background:var(--bg2);border:1px solid var(--brd);border-radius:14px;
+  padding:24px;margin:16px 0 24px;
+}
+.decomp-label{font-size:11px;font-weight:600;letter-spacing:1px;color:var(--tx3);text-transform:uppercase;margin-bottom:16px}
+
+.decomp-string{
+  display:flex;justify-content:center;gap:0;margin:16px 0 8px;flex-wrap:wrap;
+}
+.decomp-char{
+  width:48px;height:48px;display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:18px;font-weight:600;color:var(--tx);
+  border:1.5px solid var(--brd);background:var(--bg3);transition:all .35s;
+}
+.decomp-char:first-child{border-radius:10px 0 0 10px}
+.decomp-char:last-child{border-radius:0 10px 10px 0}
+.decomp-char.c-prefix{border-color:var(--cyan);background:var(--cyan-bg);color:var(--cyan)}
+.decomp-char.c-sub{border-color:var(--yellow);background:var(--yellow-bg);color:var(--yellow)}
+.decomp-char.c-suffix{border-color:var(--orange);background:var(--orange-bg);color:var(--orange)}
+.decomp-char.c-dim{opacity:.35}
+.decomp-char.wide{width:auto;min-width:60px;padding:0 12px}
+
+.decomp-brackets{
+  display:flex;justify-content:center;gap:0;margin:0 0 6px;
+}
+.decomp-bk{
+  width:48px;text-align:center;font-size:10px;font-weight:700;letter-spacing:.3px;
+  padding-top:2px;
+}
+.bk-t{color:var(--cyan)}.bk-u{color:var(--yellow)}.bk-v{color:var(--orange)}.bk-none{color:transparent}
+.decomp-bk.wide{width:auto;min-width:60px;padding:0 12px}
+
+.decomp-legend{
+  display:flex;justify-content:center;gap:16px;margin-top:14px;flex-wrap:wrap;
+}
+.decomp-legend-item{font-size:11.5px;color:var(--tx2);display:flex;align-items:center;gap:5px}
+.decomp-legend-item .dot{width:10px;height:10px;border-radius:3px}
+
+/* SELECTOR BAR */
+.sel-bar{display:flex;justify-content:center;gap:8px;margin:14px 0 4px;flex-wrap:wrap}
+.sel-btn{
+  padding:7px 16px;border:1.5px solid var(--brd);border-radius:10px;
+  font-family:var(--font);font-size:12px;font-weight:500;
+  background:var(--bg2);color:var(--tx2);cursor:pointer;transition:all .2s;
+}
+.sel-btn:hover{background:var(--bg3);color:var(--tx)}
+.sel-btn.active-c{border-color:var(--cyan);color:var(--cyan);background:var(--cyan-bg)}
+.sel-btn.active-y{border-color:var(--yellow);color:var(--yellow);background:var(--yellow-bg)}
+.sel-btn.active-o{border-color:var(--orange);color:var(--orange);background:var(--orange-bg)}
+.sel-btn.active-b{border-color:var(--blue);color:var(--blue);background:var(--blue-bg)}
+
+.decomp-result{text-align:center;font-size:13px;font-weight:500;min-height:22px;margin:10px 0 0}
+
+/* TABLES */
+table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:16px}
+thead th{text-align:left;padding:8px 10px;font-weight:600;font-size:11px;color:var(--tx3);letter-spacing:.3px;border-bottom:1.5px solid var(--brd);background:var(--bg2)}
+td{padding:8px 10px;border-bottom:1px solid var(--brd);vertical-align:top}
+
+.note{font-size:11px;color:var(--tx3);line-height:1.6;margin:8px 0}
+.note strong{color:var(--tx2)}
+
+.concept-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin:12px 0}
+.concept-card{padding:14px 16px;border-radius:12px;border:1px solid var(--brd);background:var(--bg2)}
+.concept-card .c-title{font-size:12px;font-weight:600;margin-bottom:4px}
+.concept-card .c-body{font-size:11.5px;color:var(--tx2);line-height:1.6}
+.concept-card .c-body .mono{color:var(--yellow)}
+
+.insight{
+  border-left:3px solid var(--blue);background:var(--blue-bg);border-radius:0 10px 10px 0;
+  padding:14px 18px;margin:16px 0;font-size:13px;color:var(--tx2);line-height:1.7;
+}
+.insight strong{color:var(--blue)}
+.insight.insight-green{border-color:var(--green);background:var(--green-bg)}
+.insight.insight-green strong{color:var(--green)}
+.insight.insight-purple{border-color:var(--purple);background:var(--purple-bg)}
+.insight.insight-purple strong{color:var(--purple)}
+
+/* EXAMPLE SECTION MARKER */
+.ex-marker{
+  display:inline-block;padding:3px 10px;border-radius:6px;font-size:10px;font-weight:700;
+  letter-spacing:.8px;margin-bottom:8px;
+}
+.ex-book{background:var(--blue-bg);color:var(--blue)}
+.ex-new{background:var(--green-bg);color:var(--green)}
+
+.footer{text-align:center;font-size:11px;color:var(--tx3);margin-top:40px;padding-top:16px;border-top:1px solid var(--brd)}
+
+@media(max-width:540px){
+  .container{padding:20px 14px 40px}
+  .str-grid{grid-template-columns:repeat(3,1fr)}
+  .concept-row{grid-template-columns:1fr}
+  .decomp-char{width:38px;height:38px;font-size:15px}
+  .decomp-bk{width:38px}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="chap">Capítulo 2 — Linguagens e Autômatos</div>
+  <h1>Definição de Linguagem · Prefixo, Sufixo e Subcadeia</h1>
+  <p>Notação formal, exemplos expandidos e decomposição visual de cadeias</p>
+  <div class="src">Baseado em: Cassandras &amp; Lafortune, "Introduction to Discrete Event Systems", 2ª Ed. — Seção 2.2.1</div>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION 1: FORMAL DEFINITION                 -->
+<!-- ============================================ -->
+<h2><span class="num">1.</span> Definição Formal de Linguagem</h2>
+
+<div class="def-box">
+  <div class="def-text">
+    Uma <em>linguagem</em> definida sobre um conjunto de eventos E é um conjunto de cadeias (strings) de <em>comprimento finito</em> formadas a partir de eventos de E.
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION 2: BOOK EXAMPLE EXPANDED             -->
+<!-- ============================================ -->
+<h2><span class="num">2.</span> Exemplo do Livro — Expandido</h2>
+<div class="ex-marker ex-book">EXEMPLO DO LIVRO</div>
+
+<p class="prose">
+  Seja <strong>E = {a, b, g}</strong> o conjunto de eventos. A partir desse alfabeto de 3 símbolos, podemos definir linguagens muito diferentes:
+</p>
+
+<!-- L1 -->
+<h3>Linguagem L₁ — Finita e explícita</h3>
+<div class="lang-box">
+  <span class="label">L₁ = {ε, a, abb} &nbsp;·&nbsp; 3 cadeias &nbsp;<span style="font-family:var(--font)"><span class="tag tag-finite">FINITA</span></span></span>
+  <span class="sym">ε</span> → cadeia vazia (comprimento 0)<br>
+  <span class="sym">a</span> → cadeia de comprimento 1<br>
+  <span class="sym">abb</span> → cadeia de comprimento 3 (concatenação de <span class="sym">a</span>, <span class="sym">b</span>, <span class="sym">b</span>)
+</div>
+
+<!-- L2 -->
+<h3>Linguagem L₂ — Todas as cadeias de comprimento 3 que começam com <span class="mono" style="color:var(--yellow)">a</span></h3>
+<p class="prose">
+  Se a primeira posição é fixa em <strong>a</strong>, restam 2 posições livres, cada uma com 3 opções (a, b, g). Isso dá 1 × 3 × 3 = <strong>9 cadeias</strong>:
+</p>
+
+<div class="str-grid">
+  <div class="str-cell head">POS 1 = a</div>
+  <div class="str-cell head">POS 2 ∈ E</div>
+  <div class="str-cell head">POS 3 ∈ E</div>
+  <div class="str-cell">aaa</div>
+  <div class="str-cell">aab</div>
+  <div class="str-cell">aag</div>
+  <div class="str-cell">aba</div>
+  <div class="str-cell">abb</div>
+  <div class="str-cell">abg</div>
+  <div class="str-cell">aga</div>
+  <div class="str-cell">agb</div>
+  <div class="str-cell">agg</div>
+</div>
+
+<div class="lang-box">
+  <span class="label">L₂ &nbsp;·&nbsp; |L₂| = 9 cadeias &nbsp;<span style="font-family:var(--font)"><span class="tag tag-finite">FINITA</span></span></span>
+  <span class="eq">L₂</span> = { <span class="set">aaa</span>, <span class="set">aab</span>, <span class="set">aag</span>, <span class="set">aba</span>, <span class="set">abb</span>, <span class="set">abg</span>, <span class="set">aga</span>, <span class="set">agb</span>, <span class="set">agg</span> }
+</div>
+
+<!-- L3 -->
+<h3>Linguagem L₃ — Todas as cadeias de comprimento finito que começam com <span class="mono" style="color:var(--yellow)">a</span></h3>
+<p class="prose">
+  Agora não há limite de comprimento — apenas a restrição de que a cadeia deve começar com <strong>a</strong>. Vejamos como ela cresce rapidamente:
+</p>
+
+<div class="inf-scroll">
+  <div class="inf-label">L₃ — CADEIAS ORGANIZADAS POR COMPRIMENTO (role para a direita →)</div>
+  <div class="inf-track" id="inf-track">
+    <div class="inf-chip" style="border-color:var(--blue);color:var(--blue)">a</div>
+    <div class="inf-chip">aa</div><div class="inf-chip">ab</div><div class="inf-chip">ag</div>
+    <div class="inf-chip">aaa</div><div class="inf-chip">aab</div><div class="inf-chip">aag</div>
+    <div class="inf-chip">aba</div><div class="inf-chip">abb</div><div class="inf-chip">abg</div>
+    <div class="inf-chip">aga</div><div class="inf-chip">agb</div><div class="inf-chip">agg</div>
+    <div class="inf-chip fade1">aaaa</div><div class="inf-chip fade1">aaab</div><div class="inf-chip fade1">aaag</div>
+    <div class="inf-chip fade1">aaba</div><div class="inf-chip fade1">aabb</div><div class="inf-chip fade1">aabg</div>
+    <div class="inf-chip fade1">aaga</div><div class="inf-chip fade1">aagb</div><div class="inf-chip fade1">aagg</div>
+    <div class="inf-chip fade2">abaa</div><div class="inf-chip fade2">abab</div><div class="inf-chip fade2">abag</div>
+    <div class="inf-chip fade2">abba</div><div class="inf-chip fade2">abbb</div><div class="inf-chip fade2">abbg</div>
+    <div class="inf-chip fade3">agaa</div><div class="inf-chip fade3">agab</div><div class="inf-chip fade3">agag</div>
+    <div class="inf-dots">· · ·&nbsp;&nbsp;∞</div>
+  </div>
+</div>
+
+<table>
+  <thead><tr><th>COMPRIMENTO n</th><th>QUANTIDADE DE CADEIAS</th><th>CADEIAS</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>1 (= 3⁰)</td><td class="mono">a</td></tr>
+    <tr><td>2</td><td>3 (= 3¹)</td><td class="mono">aa, ab, ag</td></tr>
+    <tr><td>3</td><td>9 (= 3²)</td><td class="mono">aaa, aab, aag, aba, abb, abg, aga, agb, agg</td></tr>
+    <tr><td>4</td><td>27 (= 3³)</td><td class="mono" style="color:var(--tx3)">aaaa, aaab, aaag, aaba, ... (27 cadeias)</td></tr>
+    <tr><td>n</td><td>3<sup>n−1</sup></td><td style="color:var(--purple)">cresce exponencialmente → infinitas cadeias no total</td></tr>
+  </tbody>
+</table>
+
+<div class="lang-box">
+  <span class="label">L₃ &nbsp;·&nbsp; |L₃| = ∞ &nbsp;<span style="font-family:var(--font)"><span class="tag tag-infinite">INFINITA</span></span></span>
+  <span class="eq">L₃</span> = { s ∈ <span class="eq">E*</span> : s começa com <span class="sym">a</span> } &nbsp;&nbsp;→&nbsp;&nbsp; total = <span class="op">Σ 3<sup>n−1</sup></span> para n = 1, 2, 3, ... = <span class="op">∞</span>
+</div>
+
+<!-- ============================================ -->
+<!-- SECTION 3: PREFIX, SUFFIX, SUBSTRING         -->
+<!-- ============================================ -->
+<h2><span class="num">3.</span> Prefixo, Subcadeia e Sufixo</h2>
+
+<div class="def-box">
+  <div class="def-text">
+    Se <em>tuv = s</em> com t, u, v ∈ E*, então:<br>
+    &nbsp;&nbsp;• <em>t</em> é chamado de <em>prefixo</em> de s<br>
+    &nbsp;&nbsp;• <em>u</em> é chamado de <em>subcadeia</em> (substring) de s<br>
+    &nbsp;&nbsp;• <em>v</em> é chamado de <em>sufixo</em> de s<br><br>
+    Observação: tanto <em>ε</em> quanto a própria <em>s</em> são prefixos, subcadeias e sufixos de s.
+  </div>
+</div>
+
+<p class="prose">
+  A ideia é simples: toda cadeia <strong>s</strong> pode ser "fatiada" em três partes consecutivas <strong>t · u · v</strong>. A parte da esquerda é o prefixo, a do meio é a subcadeia, e a da direita é o sufixo. Qualquer dessas partes pode ser a cadeia vazia ε.
+</p>
+
+<!-- INTERACTIVE DECOMPOSITION -->
+<div class="decomp-scene">
+  <div class="decomp-label">⚡ Interativo — Decomposição da cadeia <span style="color:var(--tx);font-family:var(--mono)">s = a b b g a</span></div>
+
+  <div class="decomp-brackets" id="brackets">
+    <div class="decomp-bk bk-none" id="bk0">&nbsp;</div>
+    <div class="decomp-bk bk-none" id="bk1">&nbsp;</div>
+    <div class="decomp-bk bk-none" id="bk2">&nbsp;</div>
+    <div class="decomp-bk bk-none" id="bk3">&nbsp;</div>
+    <div class="decomp-bk bk-none" id="bk4">&nbsp;</div>
+  </div>
+  <div class="decomp-string" id="dstr">
+    <div class="decomp-char" id="ch0">a</div>
+    <div class="decomp-char" id="ch1">b</div>
+    <div class="decomp-char" id="ch2">b</div>
+    <div class="decomp-char" id="ch3">g</div>
+    <div class="decomp-char" id="ch4">a</div>
+  </div>
+
+  <div class="decomp-legend">
+    <div class="decomp-legend-item"><div class="dot" style="background:var(--cyan)"></div> t = prefixo</div>
+    <div class="decomp-legend-item"><div class="dot" style="background:var(--yellow)"></div> u = subcadeia</div>
+    <div class="decomp-legend-item"><div class="dot" style="background:var(--orange)"></div> v = sufixo</div>
+  </div>
+
+  <div class="sel-bar" id="sel-book">
+    <button class="sel-btn" onclick="showDecomp('d1')">t=<b>ab</b> u=<b>bg</b> v=<b>a</b></button>
+    <button class="sel-btn" onclick="showDecomp('d2')">t=<b>a</b> u=<b>b</b> v=<b>bga</b></button>
+    <button class="sel-btn" onclick="showDecomp('d3')">t=<b>abb</b> u=<b>ε</b> v=<b>ga</b></button>
+    <button class="sel-btn" onclick="showDecomp('d4')">t=<b>ε</b> u=<b>abbga</b> v=<b>ε</b></button>
+    <button class="sel-btn" onclick="showDecomp('d5')">t=<b>abbga</b> u=<b>ε</b> v=<b>ε</b></button>
+  </div>
+
+  <div class="decomp-result" id="decomp-result"></div>
+</div>
+
+
+<!-- ============================================ -->
+<!-- SECTION 4: NEW EXAMPLE 1                     -->
+<!-- ============================================ -->
+<h2><span class="num">4.</span> Exemplo Adicional 1 — Sistema de Alarme Residencial</h2>
+<div class="ex-marker ex-new">EXEMPLO NOVO</div>
+
+<p class="prose">
+  Considere um sistema de alarme residencial simples. Os eventos possíveis são: <strong>armar</strong> o alarme, um <strong>sensor</strong> detectar movimento, a <strong>sirene</strong> disparar, e o usuário inserir a <strong>senha</strong> para desarmar. Queremos modelar as sequências válidas de operação.
+</p>
+
+<div class="lang-box">
+  <span class="label">ALFABETO</span>
+  <span class="eq">E</span> = { <span class="sym">arm</span>, <span class="sym">sensor</span>, <span class="sym">sirene</span>, <span class="sym">senha</span> }
+  &nbsp;&nbsp;·&nbsp;&nbsp; |<span class="eq">E</span>| = 4 eventos
+</div>
+
+<div class="concept-row">
+  <div class="concept-card">
+    <div class="c-title" style="color:var(--green)">L<sub>ok</sub> — Operação Normal <span class="tag tag-finite">FINITA</span></div>
+    <div class="c-body">
+      O alarme é armado, um sensor detecta algo, a sirene toca, e o dono insere a senha.<br>
+      <span class="mono" style="color:var(--green)">L<sub>ok</sub> = { arm · sensor · sirene · senha }</span><br>
+      |L<sub>ok</sub>| = 1 cadeia de comprimento 4.
+    </div>
+  </div>
+  <div class="concept-card">
+    <div class="c-title" style="color:var(--red)">L<sub>falha</sub> — Falso Alarme <span class="tag tag-finite">FINITA</span></div>
+    <div class="c-body">
+      A sirene toca sem detecção prévia de sensor — sequência inválida.<br>
+      <span class="mono" style="color:var(--red)">Exemplo: arm · sirene · senha</span><br>
+      Não pertence a L<sub>ok</sub> pois pula o evento <span class="mono">sensor</span>.
+    </div>
+  </div>
+</div>
+
+<!-- INTERACTIVE DECOMPOSITION: ALARM -->
+<div class="decomp-scene">
+  <div class="decomp-label">⚡ Interativo — Decomposição da cadeia <span style="color:var(--tx);font-family:var(--mono)">s = arm · sensor · sirene · senha</span></div>
+
+  <div class="decomp-brackets" id="brackets-alarm">
+    <div class="decomp-bk bk-none wide" id="abk0">&nbsp;</div>
+    <div class="decomp-bk bk-none wide" id="abk1">&nbsp;</div>
+    <div class="decomp-bk bk-none wide" id="abk2">&nbsp;</div>
+    <div class="decomp-bk bk-none wide" id="abk3">&nbsp;</div>
+  </div>
+  <div class="decomp-string" id="dstr-alarm">
+    <div class="decomp-char wide" id="ach0" style="font-size:13px">arm</div>
+    <div class="decomp-char wide" id="ach1" style="font-size:13px">sensor</div>
+    <div class="decomp-char wide" id="ach2" style="font-size:13px">sirene</div>
+    <div class="decomp-char wide" id="ach3" style="font-size:13px">senha</div>
+  </div>
+
+  <div class="decomp-legend">
+    <div class="decomp-legend-item"><div class="dot" style="background:var(--cyan)"></div> t = prefixo</div>
+    <div class="decomp-legend-item"><div class="dot" style="background:var(--yellow)"></div> u = subcadeia</div>
+    <div class="decomp-legend-item"><div class="dot" style="background:var(--orange)"></div> v = sufixo</div>
+  </div>
+
+  <div class="sel-bar" id="sel-alarm">
+    <button class="sel-btn" onclick="showAlarm('a1')">t=<b>arm</b> u=<b>sensor·sirene</b> v=<b>senha</b></button>
+    <button class="sel-btn" onclick="showAlarm('a2')">t=<b>arm·sensor</b> u=<b>sirene</b> v=<b>senha</b></button>
+    <button class="sel-btn" onclick="showAlarm('a3')">t=<b>ε</b> u=<b>tudo</b> v=<b>ε</b></button>
+    <button class="sel-btn" onclick="showAlarm('a4')">t=<b>arm·sensor·sirene</b> u=<b>ε</b> v=<b>senha</b></button>
+    <button class="sel-btn" onclick="showAlarm('a5')">t=<b>arm</b> u=<b>sensor</b> v=<b>sirene·senha</b></button>
+  </div>
+
+  <div class="decomp-result" id="alarm-result"></div>
+</div>
+
+
+<!-- ============================================ -->
+<!-- SECTION 5: NEW EXAMPLE 2                     -->
+<!-- ============================================ -->
+<h2><span class="num">5.</span> Exemplo Adicional 2 — Protocolo de Login</h2>
+<div class="ex-marker ex-new">EXEMPLO NOVO</div>
+
+<p class="prose">
+  Imagine um protocolo de autenticação web. Os eventos são: <strong>req</strong> (requisição de login), <strong>usr</strong> (envio do usuário), <strong>pwd</strong> (envio da senha), <strong>ok</strong> (acesso concedido) e <strong>fail</strong> (acesso negado). Existem linguagens de comportamento correto e de tentativas de ataque.
+</p>
+
+<div class="lang-box">
+  <span class="label">ALFABETO</span>
+  <span class="eq">E</span> = { <span class="sym">req</span>, <span class="sym">usr</span>, <span class="sym">pwd</span>, <span class="sym">ok</span>, <span class="sym">fail</span> }
+  &nbsp;&nbsp;·&nbsp;&nbsp; |<span class="eq">E</span>| = 5 eventos
+</div>
+
+<div class="concept-row">
+  <div class="concept-card">
+    <div class="c-title" style="color:var(--green)">L<sub>sucesso</sub> — Login bem-sucedido <span class="tag tag-finite">FINITA</span></div>
+    <div class="c-body">
+      <span class="mono" style="color:var(--green)">L<sub>sucesso</sub> = { req·usr·pwd·ok }</span><br>
+      1 cadeia de comprimento 4. O único caminho feliz.
+    </div>
+  </div>
+  <div class="concept-card">
+    <div class="c-title" style="color:var(--red)">L<sub>erro</sub> — Senha errada uma vez <span class="tag tag-finite">FINITA</span></div>
+    <div class="c-body">
+      <span class="mono" style="color:var(--red)">L<sub>erro</sub> = { req·usr·pwd·fail }</span><br>
+      1 cadeia de comprimento 4. Mesmo fluxo, resultado diferente.
+    </div>
+  </div>
+  <div class="concept-card">
+    <div class="c-title" style="color:var(--purple)">L<sub>brute</sub> — Tentativas infinitas <span class="tag tag-infinite">INFINITA</span></div>
+    <div class="c-body">
+      <span class="mono" style="color:var(--purple)">L<sub>brute</sub> = { req·(usr·pwd·fail)<sup>n</sup>: n ≥ 1 }</span><br>
+      n repetições de falha sem sucesso. |L<sub>brute</sub>| = ∞ pois n pode crescer indefinidamente.
+    </div>
+  </div>
+</div>
+
+
+<!-- INTERACTIVE DECOMPOSITION: LOGIN -->
+<div class="decomp-scene">
+  <div class="decomp-label">⚡ Interativo — Decomposição da cadeia <span style="color:var(--tx);font-family:var(--mono)">s = req · usr · pwd · fail</span></div>
+
+  <div class="decomp-brackets" id="brackets-login">
+    <div class="decomp-bk bk-none wide" id="lbk0">&nbsp;</div>
+    <div class="decomp-bk bk-none wide" id="lbk1">&nbsp;</div>
+    <div class="decomp-bk bk-none wide" id="lbk2">&nbsp;</div>
+    <div class="decomp-bk bk-none wide" id="lbk3">&nbsp;</div>
+  </div>
+  <div class="decomp-string" id="dstr-login">
+    <div class="decomp-char wide" id="lch0" style="font-size:13px">req</div>
+    <div class="decomp-char wide" id="lch1" style="font-size:13px">usr</div>
+    <div class="decomp-char wide" id="lch2" style="font-size:13px">pwd</div>
+    <div class="decomp-char wide" id="lch3" style="font-size:13px">fail</div>
+  </div>
+
+  <div class="decomp-legend">
+    <div class="decomp-legend-item"><div class="dot" style="background:var(--cyan)"></div> t = prefixo</div>
+    <div class="decomp-legend-item"><div class="dot" style="background:var(--yellow)"></div> u = subcadeia</div>
+    <div class="decomp-legend-item"><div class="dot" style="background:var(--orange)"></div> v = sufixo</div>
+  </div>
+
+  <div class="sel-bar" id="sel-login">
+    <button class="sel-btn" onclick="showLogin('l1')">t=<b>req</b> u=<b>usr·pwd</b> v=<b>fail</b></button>
+    <button class="sel-btn" onclick="showLogin('l2')">t=<b>req·usr</b> u=<b>pwd</b> v=<b>fail</b></button>
+    <button class="sel-btn" onclick="showLogin('l3')">t=<b>ε</b> u=<b>req</b> v=<b>usr·pwd·fail</b></button>
+    <button class="sel-btn" onclick="showLogin('l4')">t=<b>req·usr·pwd</b> u=<b>fail</b> v=<b>ε</b></button>
+    <button class="sel-btn" onclick="showLogin('l5')">t=<b>req·usr·pwd·fail</b> u=<b>ε</b> v=<b>ε</b></button>
+  </div>
+
+  <div class="decomp-result" id="login-result"></div>
+</div>
+
+
+<div class="footer">
+  Ficha de Estudo — Cassandras &amp; Lafortune, Cap.2 §2.2.1 — Definição de Linguagem<br>
+  3 exemplos: Livro (E={a,b,g}) · Alarme Residencial · Protocolo de Login
+</div>
+
+</div>
+
+<script>
+// ================ GENERIC DECOMP ENGINE ================
+function renderDecomp(cfg) {
+  var d = cfg.data[cfg.key];
+  // Reset buttons in this widget's sel-bar
+  var bar = document.getElementById(cfg.barId);
+  bar.querySelectorAll('.sel-btn').forEach(function(b){ b.className = 'sel-btn'; });
+  // Highlight active
+  var keys = Object.keys(cfg.data);
+  var btns = bar.querySelectorAll('.sel-btn');
+  var idx = keys.indexOf(cfg.key);
+  if (idx >= 0 && btns[idx]) btns[idx].className = 'sel-btn active-b';
+
+  var n = cfg.chars.length;
+  for (var i = 0; i < n; i++) {
+    var ch = document.getElementById(cfg.chPrefix + i);
+    var bk = document.getElementById(cfg.bkPrefix + i);
+    ch.className = 'decomp-char' + (cfg.wide ? ' wide' : '');
+    bk.className = 'decomp-bk bk-none' + (cfg.wide ? ' wide' : '');
+    bk.innerHTML = '&nbsp;';
+
+    if (d.t.indexOf(i) >= 0) {
+      ch.className = 'decomp-char c-prefix' + (cfg.wide ? ' wide' : '');
+      bk.className = 'decomp-bk bk-t' + (cfg.wide ? ' wide' : '');
+      bk.textContent = 't';
+    } else if (d.u.indexOf(i) >= 0) {
+      ch.className = 'decomp-char c-sub' + (cfg.wide ? ' wide' : '');
+      bk.className = 'decomp-bk bk-u' + (cfg.wide ? ' wide' : '');
+      bk.textContent = 'u';
+    } else if (d.v.indexOf(i) >= 0) {
+      ch.className = 'decomp-char c-suffix' + (cfg.wide ? ' wide' : '');
+      bk.className = 'decomp-bk bk-v' + (cfg.wide ? ' wide' : '');
+      bk.textContent = 'v';
+    } else {
+      ch.className = 'decomp-char c-dim' + (cfg.wide ? ' wide' : '');
+    }
+  }
+
+  var sep = cfg.sep || '';
+  var tStr = d.t.length ? d.t.map(function(i){return cfg.chars[i]}).join(sep) : 'ε';
+  var uStr = d.u.length ? d.u.map(function(i){return cfg.chars[i]}).join(sep) : 'ε';
+  var vStr = d.v.length ? d.v.map(function(i){return cfg.chars[i]}).join(sep) : 'ε';
+  var full = cfg.chars.join(sep);
+
+  document.getElementById(cfg.resultId).innerHTML =
+    '<span style="color:var(--cyan)">t=' + tStr + '</span>' +
+    ' · <span style="color:var(--yellow)">u=' + uStr + '</span>' +
+    ' · <span style="color:var(--orange)">v=' + vStr + '</span>' +
+    ' &nbsp;→&nbsp; t·u·v = ' + full + ' ✓';
+}
+
+// ================ 1) ORIGINAL: s = abbga ================
+var decompBook = {
+  d1: { t:[0,1], u:[2,3], v:[4] },
+  d2: { t:[0], u:[1], v:[2,3,4] },
+  d3: { t:[0,1,2], u:[], v:[3,4] },
+  d4: { t:[], u:[0,1,2,3,4], v:[] },
+  d5: { t:[0,1,2,3,4], u:[], v:[] },
+};
+function showDecomp(key) {
+  renderDecomp({ key:key, data:decompBook, chars:['a','b','b','g','a'],
+    chPrefix:'ch', bkPrefix:'bk', barId:'sel-book', resultId:'decomp-result',
+    wide:false, sep:'' });
+}
+
+// ================ 2) ALARM: s = arm·sensor·sirene·senha ================
+var decompAlarm = {
+  a1: { t:[0], u:[1,2], v:[3] },
+  a2: { t:[0,1], u:[2], v:[3] },
+  a3: { t:[], u:[0,1,2,3], v:[] },
+  a4: { t:[0,1,2], u:[], v:[3] },
+  a5: { t:[0], u:[1], v:[2,3] },
+};
+function showAlarm(key) {
+  renderDecomp({ key:key, data:decompAlarm, chars:['arm','sensor','sirene','senha'],
+    chPrefix:'ach', bkPrefix:'abk', barId:'sel-alarm', resultId:'alarm-result',
+    wide:true, sep:'·' });
+}
+
+// ================ 3) LOGIN: s = req·usr·pwd·fail ================
+var decompLogin = {
+  l1: { t:[0], u:[1,2], v:[3] },
+  l2: { t:[0,1], u:[2], v:[3] },
+  l3: { t:[], u:[0], v:[1,2,3] },
+  l4: { t:[0,1,2], u:[3], v:[] },
+  l5: { t:[0,1,2,3], u:[], v:[] },
+};
+function showLogin(key) {
+  renderDecomp({ key:key, data:decompLogin, chars:['req','usr','pwd','fail'],
+    chPrefix:'lch', bkPrefix:'lbk', barId:'sel-login', resultId:'login-result',
+    wide:true, sep:'·' });
+}
+
+// Init defaults
+showDecomp('d1');
+showAlarm('a1');
+showLogin('l1');
+</script>
+</body>
+</html>

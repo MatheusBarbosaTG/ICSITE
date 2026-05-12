@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ficha de Estudo — §2.2.1 Modelos de Linguagem de SED</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1117; --bg2: #181b24; --bg3: #22262f; --bg4: #2c313c;
+  --tx: #e4e6ed; --tx2: #9da2b0; --tx3: #636879;
+  --brd: rgba(255,255,255,.08);
+  --green: #34d399; --green-bg: rgba(52,211,153,.1);
+  --red: #f87171; --red-bg: rgba(248,113,113,.1);
+  --yellow: #fbbf24; --yellow-bg: rgba(251,191,36,.1);
+  --blue: #60a5fa; --blue-bg: rgba(96,165,250,.1);
+  --purple: #a78bfa; --purple-bg: rgba(167,139,250,.12);
+  --cyan: #22d3ee; --cyan-bg: rgba(34,211,238,.1);
+  --font: 'DM Sans', sans-serif; --mono: 'JetBrains Mono', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font); background: var(--bg); color: var(--tx); line-height: 1.6; }
+.container { max-width: 780px; margin: 0 auto; padding: 32px 20px 60px; }
+
+.hdr { margin-bottom: 32px; }
+.hdr .chap { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; color: var(--blue); text-transform: uppercase; margin-bottom: 4px; }
+.hdr h1 { font-size: 22px; font-weight: 700; letter-spacing: -.3px; line-height: 1.3; }
+.hdr p { font-size: 13px; color: var(--tx3); margin-top: 4px; }
+.hdr .src { font-size: 11px; color: var(--tx3); margin-top: 2px; font-style: italic; }
+
+h2 { font-size: 16px; font-weight: 600; margin: 36px 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--brd); }
+h2 .num { color: var(--tx3); font-weight: 400; margin-right: 6px; }
+.prose { font-size: 13.5px; color: var(--tx2); line-height: 1.75; margin-bottom: 16px; }
+.prose strong { color: var(--tx); }
+
+.tag { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 600; letter-spacing: .2px; vertical-align: middle; }
+.tag-valid { background: var(--green-bg); color: var(--green); }
+.tag-invalid { background: var(--red-bg); color: var(--red); }
+.mono { font-family: var(--mono); font-size: 11.5px; }
+
+.machine-scene {
+  position: relative; background: var(--bg2); border: 1px solid var(--brd);
+  border-radius: 14px; padding: 24px; margin: 16px 0 24px; overflow: hidden;
+}
+.machine-scene::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(ellipse at 30% 50%, rgba(96,165,250,.04), transparent 60%),
+              radial-gradient(ellipse at 80% 30%, rgba(167,139,250,.03), transparent 50%);
+  pointer-events: none;
+}
+.machine-label { font-size: 11px; font-weight: 600; letter-spacing: 1px; color: var(--tx3); text-transform: uppercase; margin-bottom: 16px; position: relative; }
+
+.machine-box {
+  position: relative; width: 200px; margin: 0 auto 20px; background: var(--bg3);
+  border: 1.5px solid var(--brd); border-radius: 12px; padding: 20px 16px 16px;
+  text-align: center; transition: all .4s;
+}
+.machine-box.active { border-color: var(--green); box-shadow: 0 0 24px rgba(52,211,153,.08); }
+.machine-box .icon { font-size: 36px; margin-bottom: 8px; display: block; }
+.machine-box .name { font-size: 13px; font-weight: 600; color: var(--tx); }
+.machine-box .state { font-size: 11px; color: var(--tx3); margin-top: 2px; transition: color .3s; }
+.machine-box.active .state { color: var(--green); }
+
+.signal-flow { display: flex; align-items: center; justify-content: center; gap: 0; margin: 20px 0 4px; flex-wrap: wrap; }
+.sig-step { display: flex; flex-direction: column; align-items: center; width: 140px; transition: all .4s; }
+.sig-bubble {
+  width: 130px; padding: 12px 8px; border-radius: 10px; border: 1.5px solid var(--brd);
+  background: var(--bg3); text-align: center; font-size: 11.5px; font-weight: 500;
+  color: var(--tx2); transition: all .4s; cursor: default; position: relative;
+}
+.sig-bubble .evt-label { display: block; font-size: 9px; font-family: var(--mono); color: var(--tx3); margin-top: 4px; letter-spacing: .3px; }
+.sig-bubble.lit-on { border-color: var(--blue); background: var(--blue-bg); color: var(--blue); }
+.sig-bubble.lit-status { border-color: var(--yellow); background: var(--yellow-bg); color: var(--yellow); }
+.sig-bubble.lit-done { border-color: var(--green); background: var(--green-bg); color: var(--green); }
+.sig-bubble.lit-err { border-color: var(--red); background: var(--red-bg); color: var(--red); }
+
+.sig-arrow { width: 36px; text-align: center; color: var(--tx3); font-size: 16px; transition: color .3s; flex-shrink: 0; }
+.sig-arrow.lit { color: var(--green); }
+.sig-arrow.lit-err { color: var(--red); }
+
+.sig-order {
+  font-size: 10px; font-weight: 700; color: var(--tx3); width: 20px; height: 20px;
+  line-height: 20px; border-radius: 50%; background: var(--bg4); text-align: center;
+  margin-bottom: 6px; transition: all .3s;
+}
+.sig-order.lit { background: var(--green); color: var(--bg); }
+.sig-order.lit-err { background: var(--red); color: var(--bg); }
+
+.play-bar { display: flex; justify-content: center; gap: 8px; margin: 20px 0 4px; flex-wrap: wrap; }
+.play-btn {
+  padding: 8px 18px; border: 1.5px solid var(--brd); border-radius: 10px;
+  font-family: var(--font); font-size: 12px; font-weight: 500;
+  background: var(--bg2); color: var(--tx2); cursor: pointer; transition: all .2s;
+}
+.play-btn:hover { background: var(--bg3); color: var(--tx); }
+.play-btn.active { border-color: var(--green); color: var(--green); background: var(--green-bg); }
+.play-btn.active-r { border-color: var(--red); color: var(--red); background: var(--red-bg); }
+
+.result-line { text-align: center; font-size: 13px; font-weight: 500; min-height: 22px; margin: 12px 0 0; transition: color .3s; }
+
+.alpha-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin: 12px 0 20px; }
+.alpha-card { padding: 12px 14px; border-radius: 10px; border: 1px solid var(--brd); background: var(--bg2); }
+.alpha-card .evt { font-family: var(--mono); font-size: 12px; font-weight: 500; margin-bottom: 2px; }
+.alpha-card .desc { font-size: 11.5px; color: var(--tx2); }
+
+.lang-box {
+  background: var(--bg2); border: 1px solid var(--brd); border-radius: 10px;
+  padding: 16px 20px; margin: 12px 0 16px; font-family: var(--mono); font-size: 12.5px; line-height: 2;
+}
+.lang-box .label { color: var(--tx3); font-family: var(--font); font-size: 11px; display: block; margin-bottom: 4px; font-weight: 600; letter-spacing: .5px; }
+.lang-box .eq { color: var(--blue); } .lang-box .set { color: var(--green); }
+.lang-box .sym { color: var(--yellow); } .lang-box .op { color: var(--purple); }
+
+table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 16px; }
+thead th {
+  text-align: left; padding: 8px 10px; font-weight: 600; font-size: 11px;
+  color: var(--tx3); letter-spacing: .3px; border-bottom: 1.5px solid var(--brd); background: var(--bg2);
+}
+td { padding: 8px 10px; border-bottom: 1px solid var(--brd); vertical-align: top; }
+
+.note { font-size: 11px; color: var(--tx3); line-height: 1.6; margin: 8px 0; }
+.note strong { color: var(--tx2); }
+
+.concept-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin: 12px 0; }
+.concept-card { padding: 14px 16px; border-radius: 12px; border: 1px solid var(--brd); background: var(--bg2); }
+.concept-card .c-title { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+.concept-card .c-body { font-size: 11.5px; color: var(--tx2); line-height: 1.6; }
+.concept-card .c-body .mono { color: var(--yellow); }
+
+.insight {
+  border-left: 3px solid var(--blue); background: var(--blue-bg); border-radius: 0 10px 10px 0;
+  padding: 14px 18px; margin: 16px 0; font-size: 13px; color: var(--tx2); line-height: 1.7;
+}
+.insight strong { color: var(--blue); }
+
+.footer { text-align: center; font-size: 11px; color: var(--tx3); margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--brd); }
+
+@media (max-width: 540px) {
+  .container { padding: 20px 14px 40px; }
+  .sig-step { width: 110px; }
+  .sig-bubble { width: 100px; font-size: 10px; padding: 10px 4px; }
+  .alpha-grid, .concept-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="hdr">
+  <div class="chap">Capítulo 2 — Linguagens e Autômatos</div>
+  <h1>§2.2.1 Modelos de Linguagem de Sistemas a Eventos Discretos</h1>
+  <p>Como o framework "alfabeto + palavras" captura o comportamento lógico de um SED</p>
+  <div class="src">Baseado em: Cassandras &amp; Lafortune, "Introduction to Discrete Event Systems", 2ª Ed. — Seção 2.2.1</div>
+</div>
+
+<!-- 1 -->
+<h2><span class="num">1.</span> A Ideia Central</h2>
+<div class="insight">
+  <strong>Ideia-chave:</strong> Todo SED possui um <strong>conjunto de eventos E</strong> associado a ele. Se tratarmos E como um <em>alfabeto</em> e as sequências de eventos como <em>palavras</em>, podemos estudar o comportamento lógico do sistema usando a teoria formal de <strong>linguagens</strong>. As perguntas centrais passam a ser: <em>"Podemos construir um sistema que fale uma dada linguagem?"</em> e <em>"Qual linguagem esse sistema fala?"</em>
+</div>
+
+<!-- 2 -->
+<h2><span class="num">2.</span> Exemplo Motivador — Verificação de Status da Máquina</h2>
+<p class="prose">
+  Imagine uma máquina que você liga uma ou duas vezes por dia — um <strong>carro</strong>, uma <strong>copiadora</strong> ou um <strong>computador de mesa</strong>. Queremos projetar um sistema simples que realize a seguinte tarefa: quando a máquina é ligada, ela deve <strong>(1)</strong> sinalizar que está LIGADA, <strong>(2)</strong> fornecer um relatório de status e <strong>(3)</strong> sinalizar que o relatório foi concluído.
+</p>
+
+<div class="machine-scene">
+  <div class="machine-label">⚡ Interativo — selecione um cenário abaixo</div>
+
+  <div class="machine-box" id="machine">
+    <span class="icon">🖥️</span>
+    <div class="name">Máquina</div>
+    <div class="state" id="machine-state">DESLIGADA</div>
+  </div>
+
+  <div class="signal-flow" id="signal-flow">
+    <div class="sig-step">
+      <div class="sig-order" id="ord1">1</div>
+      <div class="sig-bubble" id="sig1">
+        "Estou LIGADA"
+        <span class="evt-label" id="evt1">evento: on</span>
+      </div>
+    </div>
+    <div class="sig-arrow" id="arr1">→</div>
+    <div class="sig-step">
+      <div class="sig-order" id="ord2">2</div>
+      <div class="sig-bubble" id="sig2">
+        <span id="sig2-text">relatório de status</span>
+        <span class="evt-label" id="evt2">evento: ?</span>
+      </div>
+    </div>
+    <div class="sig-arrow" id="arr2">→</div>
+    <div class="sig-step">
+      <div class="sig-order" id="ord3">3</div>
+      <div class="sig-bubble" id="sig3">
+        "Relatório pronto"
+        <span class="evt-label" id="evt3">evento: done</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="play-bar">
+    <button class="play-btn" id="btn-ok" onclick="runScenario('ok')">✅ "Tudo OK"</button>
+    <button class="play-btn" id="btn-oil" onclick="runScenario('oil')">🛢️ "Verificar Óleo"</button>
+    <button class="play-btn" id="btn-gas" onclick="runScenario('gas')">⛽ "Preciso de Combustível"</button>
+    <button class="play-btn" id="btn-bad" onclick="runScenario('bad')">⚠️ Status Ausente</button>
+    <button class="play-btn" id="btn-reset" onclick="runScenario('reset')" style="color:var(--tx3)">Resetar</button>
+  </div>
+
+  <div class="result-line" id="result"></div>
+</div>
+
+<!-- 3 -->
+<h2><span class="num">3.</span> O Alfabeto (Conjunto de Eventos E)</h2>
+<p class="prose">
+  Cada sinal que a máquina pode emitir define um <strong>evento</strong>. O conjunto de todos os sinais possíveis é o <strong>alfabeto</strong> da linguagem do nosso SED.
+</p>
+
+<div class="alpha-grid">
+  <div class="alpha-card">
+    <div class="evt" style="color:var(--blue)">on</div>
+    <div class="desc">"Estou LIGADA" — a máquina iniciou</div>
+  </div>
+  <div class="alpha-card">
+    <div class="evt" style="color:var(--yellow)">ok</div>
+    <div class="desc">"Tudo OK" — status normal</div>
+  </div>
+  <div class="alpha-card">
+    <div class="evt" style="color:var(--yellow)">oil</div>
+    <div class="desc">"Verificar óleo" — atenção necessária</div>
+  </div>
+  <div class="alpha-card">
+    <div class="evt" style="color:var(--yellow)">gas</div>
+    <div class="desc">"Preciso de combustível" — recurso baixo</div>
+  </div>
+  <div class="alpha-card">
+    <div class="evt" style="color:var(--green)">done</div>
+    <div class="desc">"Relatório concluído" — tarefa completa</div>
+  </div>
+</div>
+
+<div class="lang-box">
+  <span class="label">ALFABETO FORMAL</span>
+  <span class="eq">E</span> = { <span class="sym">on</span>, <span class="sym">ok</span>, <span class="sym">oil</span>, <span class="sym">gas</span>, <span class="sym">done</span> }
+  &nbsp;&nbsp;·&nbsp;&nbsp; |<span class="eq">E</span>| = 5 eventos
+</div>
+
+<!-- 4 -->
+<h2><span class="num">4.</span> Palavras na Linguagem</h2>
+<p class="prose">
+  Uma <strong>palavra</strong> (ou cadeia/string) é uma sequência de eventos do alfabeto. A linguagem de interesse aqui consiste em <strong>palavras de exatamente três eventos</strong>, sempre começando com <span class="mono" style="color:var(--blue)">on</span> e terminando com <span class="mono" style="color:var(--green)">done</span>, com um evento de status no meio.
+</p>
+
+<table>
+  <thead>
+    <tr><th>PALAVRA (CADEIA)</th><th>EVENTOS</th><th>STATUS</th><th>INTERPRETAÇÃO</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="mono" style="color:var(--tx)">on · ok · done</td>
+      <td>3</td>
+      <td><span class="tag tag-valid">✓ VÁLIDA</span></td>
+      <td style="color:var(--green)">Normal — tudo funcionando</td>
+    </tr>
+    <tr>
+      <td class="mono" style="color:var(--tx)">on · oil · done</td>
+      <td>3</td>
+      <td><span class="tag tag-valid">✓ VÁLIDA</span></td>
+      <td style="color:var(--yellow)">Precisa de manutenção</td>
+    </tr>
+    <tr>
+      <td class="mono" style="color:var(--tx)">on · gas · done</td>
+      <td>3</td>
+      <td><span class="tag tag-valid">✓ VÁLIDA</span></td>
+      <td style="color:var(--yellow)">Precisa de combustível</td>
+    </tr>
+    <tr>
+      <td class="mono" style="color:var(--tx)">on · done</td>
+      <td>2</td>
+      <td><span class="tag tag-invalid">✗ INVÁLIDA</span></td>
+      <td style="color:var(--red)">Anormal — relatório de status ausente!</td>
+    </tr>
+    <tr>
+      <td class="mono" style="color:var(--tx)">ok · on · done</td>
+      <td>3</td>
+      <td><span class="tag tag-invalid">✗ INVÁLIDA</span></td>
+      <td style="color:var(--red)">Ordem errada — não começa com <span class="mono">on</span></td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="lang-box">
+  <span class="label">A LINGUAGEM DAS VERIFICAÇÕES DE STATUS VÁLIDAS</span>
+  <span class="eq">L</span> = { <span class="set">on</span> · <span class="sym">s</span> · <span class="set">done</span> &nbsp;:&nbsp; <span class="sym">s</span> ∈ {<span class="sym">ok</span>, <span class="sym">oil</span>, <span class="sym">gas</span>} }
+  <br>
+  <span class="eq">L</span> = { <span class="set">on·ok·done</span>,&nbsp; <span class="set">on·oil·done</span>,&nbsp; <span class="set">on·gas·done</span> }
+  &nbsp;&nbsp;·&nbsp;&nbsp; |<span class="eq">L</span>| = 3 palavras
+</div>
+
+<div class="note"><strong>Nota:</strong> O SED que construímos é responsável por <em>reconhecer</em> eventos e dar a interpretação correta a qualquer sequência recebida. Uma palavra válida significa que a tarefa foi concluída com sucesso; qualquer outra coisa indica que algo deu errado.</div>
+
+<!-- 5 -->
+<h2><span class="num">5.</span> Conexão com os Conceitos Formais</h2>
+
+<div class="concept-row">
+  <div class="concept-card">
+    <div class="c-title" style="color:var(--blue)">Alfabeto (E)</div>
+    <div class="c-body">O conjunto finito de todos os eventos. No exemplo: <span class="mono">{on, ok, oil, gas, done}</span>. Todo SED começa aqui.</div>
+  </div>
+  <div class="concept-card">
+    <div class="c-title" style="color:var(--yellow)">Cadeia / Palavra</div>
+    <div class="c-body">Uma sequência finita de eventos de E. <span class="mono">on·ok·done</span> é uma cadeia de comprimento 3.</div>
+  </div>
+  <div class="concept-card">
+    <div class="c-title" style="color:var(--green)">Linguagem (L)</div>
+    <div class="c-body">Um conjunto de cadeias sobre E, ou seja, L ⊆ E*. As sequências válidas de verificação de status formam a linguagem L.</div>
+  </div>
+</div>
+
+<div class="concept-row">
+  <div class="concept-card">
+    <div class="c-title" style="color:var(--purple)">Cadeia Vazia (ε)</div>
+    <div class="c-body">A cadeia sem nenhum evento. |ε| = 0. É o elemento identidade da concatenação: <span class="mono">s·ε = ε·s = s</span>.</div>
+  </div>
+  <div class="concept-card">
+    <div class="c-title" style="color:var(--cyan)">Fecho de Kleene (E*)</div>
+    <div class="c-body">O conjunto de <em>todas</em> as cadeias de comprimento finito sobre E, incluindo ε. É contavelmente infinito. Toda linguagem é um subconjunto de E*.</div>
+  </div>
+  <div class="concept-card">
+    <div class="c-title" style="color:var(--red)">Comprimento da Cadeia |s|</div>
+    <div class="c-body">O número de eventos na cadeia, contando repetições. <span class="mono">|on·ok·done| = 3</span>, <span class="mono">|ε| = 0</span>.</div>
+  </div>
+</div>
+
+<!-- 6 -->
+<h2><span class="num">6.</span> Por que isso Importa</h2>
+
+<div class="insight">
+  <strong>O framework:</strong> Ao modelar um SED como uma linguagem sobre um conjunto de eventos, podemos perguntar rigorosamente: o sistema produz apenas palavras válidas? Ele pode alcançar um estado inseguro? É possível <em>controlá-lo</em> para que apenas sequências legais ocorram? Esses são exatamente os problemas de verificação e controle que conduzem o restante do Capítulo 2.
+</div>
+
+<div class="concept-row">
+  <div class="concept-card" style="border-color: rgba(96,165,250,.2);">
+    <div class="c-title" style="color:var(--blue)">🔍 Verificação</div>
+    <div class="c-body">A linguagem L do sistema contém apenas palavras seguras? Existem prefixos inseguros que poderiam se infiltrar?</div>
+  </div>
+  <div class="concept-card" style="border-color: rgba(52,211,153,.2);">
+    <div class="c-title" style="color:var(--green)">⚙️ Controle</div>
+    <div class="c-body">Podemos restringir o sistema para que a linguagem gerada permaneça dentro de uma especificação desejada?</div>
+  </div>
+  <div class="concept-card" style="border-color: rgba(251,191,36,.2);">
+    <div class="c-title" style="color:var(--yellow)">🤖 Autômatos</div>
+    <div class="c-body">A forma prática de <em>implementar</em> um reconhecedor de linguagem — máquinas de estados finitos que leem palavras e as aceitam ou rejeitam.</div>
+  </div>
+</div>
+
+<div class="footer">
+  Ficha de Estudo — Cassandras &amp; Lafortune, Cap.2 §2.2.1<br>
+  E = {on, ok, oil, gas, done} · |L| = 3 palavras válidas · Todas as palavras têm comprimento 3
+</div>
+
+</div>
+
+<script>
+var animTimer = null;
+
+function runScenario(s) {
+  clearTimeout(animTimer);
+  document.querySelectorAll('.play-btn').forEach(function(b) { b.className = 'play-btn'; });
+
+  var machine = document.getElementById('machine');
+  var mState = document.getElementById('machine-state');
+  var sig1 = document.getElementById('sig1');
+  var sig2 = document.getElementById('sig2');
+  var sig3 = document.getElementById('sig3');
+  var sig2t = document.getElementById('sig2-text');
+  var evt2 = document.getElementById('evt2');
+  var arr1 = document.getElementById('arr1');
+  var arr2 = document.getElementById('arr2');
+  var ord1 = document.getElementById('ord1');
+  var ord2 = document.getElementById('ord2');
+  var ord3 = document.getElementById('ord3');
+  var result = document.getElementById('result');
+
+  machine.className = 'machine-box';
+  mState.textContent = 'DESLIGADA'; mState.style.color = '';
+  sig1.className = sig2.className = sig3.className = 'sig-bubble';
+  arr1.className = arr2.className = 'sig-arrow';
+  ord1.className = ord2.className = ord3.className = 'sig-order';
+  sig2t.textContent = 'relatório de status'; evt2.textContent = 'evento: ?';
+  sig2.style.display = arr2.style.display = ord2.style.display = '';
+  ord3.textContent = '3';
+  result.textContent = ''; result.style.color = '';
+
+  if (s === 'reset') return;
+
+  var btn = document.getElementById('btn-' + s);
+  btn.className = 'play-btn' + (s === 'bad' ? ' active-r' : ' active');
+
+  animTimer = setTimeout(function() {
+    machine.className = 'machine-box active';
+    mState.textContent = 'LIGADA'; mState.style.color = 'var(--green)';
+    sig1.className = 'sig-bubble lit-on';
+    ord1.className = 'sig-order lit';
+
+    animTimer = setTimeout(function() {
+      arr1.className = 'sig-arrow' + (s === 'bad' ? ' lit-err' : ' lit');
+
+      if (s === 'bad') {
+        sig2.style.display = 'none'; arr2.style.display = 'none'; ord2.style.display = 'none';
+        sig3.className = 'sig-bubble lit-err';
+        ord3.className = 'sig-order lit-err'; ord3.textContent = '2';
+
+        animTimer = setTimeout(function() {
+          result.innerHTML = '<span style="color:var(--red)">✗ INVÁLIDA</span> — palavra: <span style="font-family:var(--mono);font-size:12px">on · done</span> — relatório de status ausente!';
+          result.style.color = 'var(--red)';
+          ord3.textContent = '3';
+        }, 500);
+      } else {
+        var labels = { ok: '"Tudo OK"', oil: '"Verificar Óleo"', gas: '"Preciso de Combustível"' };
+        var events = { ok: 'evento: ok', oil: 'evento: oil', gas: 'evento: gas' };
+        sig2t.textContent = labels[s]; evt2.textContent = events[s];
+        sig2.className = 'sig-bubble lit-status';
+        ord2.className = 'sig-order lit';
+
+        animTimer = setTimeout(function() {
+          arr2.className = 'sig-arrow lit';
+          sig3.className = 'sig-bubble lit-done';
+          ord3.className = 'sig-order lit';
+
+          animTimer = setTimeout(function() {
+            result.innerHTML = '<span style="color:var(--green)">✓ VÁLIDA</span> — palavra: <span style="font-family:var(--mono);font-size:12px">on · ' + s + ' · done</span> ∈ L';
+            result.style.color = 'var(--green)';
+          }, 400);
+        }, 600);
+      }
+    }, 600);
+  }, 300);
+}
+</script>
+</body>
+</html>
