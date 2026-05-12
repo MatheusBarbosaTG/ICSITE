@@ -19,16 +19,28 @@ body{
   color:#5c5f69;margin-bottom:8px;
 }
 h1{font-size:24px;font-weight:700;letter-spacing:-.3px;margin-bottom:32px}
+.section-label{
+  font-size:10px;font-weight:600;letter-spacing:1.5px;
+  color:#5c5f69;text-align:left;margin:28px 0 10px;padding-left:4px;
+}
+.section-label:first-of-type{margin-top:0}
 .cards{display:flex;flex-direction:column;gap:14px}
 a{
   display:block;padding:20px 24px;
   background:#15171b;border:1px solid rgba(255,255,255,.08);
   border-radius:12px;text-decoration:none;color:#d8dae0;
-  transition:all .25s;
+  transition:all .25s;text-align:left;
 }
 a:hover{background:#1e2028;border-color:rgba(45,212,168,.3);transform:translateY(-2px)}
 .card-title{font-size:16px;font-weight:600;margin-bottom:4px}
 .card-sub{font-size:12px;color:#8f929c}
+.card-tag{
+  display:inline-block;padding:2px 7px;border-radius:5px;
+  font-size:9px;font-weight:600;letter-spacing:.5px;
+  margin-bottom:6px;
+}
+.tag-sim{background:rgba(52,211,153,.1);color:#34d399}
+.tag-ch2{background:rgba(96,165,250,.1);color:#60a5fa}
 </style>
 </head>
 <body>
@@ -36,14 +48,43 @@ a:hover{background:#1e2028;border-color:rgba(45,212,168,.3);transform:translateY
   <div class="label">APRESENTAÇÕES</div>
   <h1>Sistemas de Eventos Discretos</h1>
   <div class="cards">
+
+    <div class="section-label">SIMULAÇÕES INTERATIVAS</div>
+
     <a href="sistema_trafego_intersecao_T_v2.html">
+      <div class="card-tag tag-sim">SIMULAÇÃO</div>
       <div class="card-title">Sistema de Trânsito</div>
       <div class="card-sub">Interseção T semafórica — modelo SED com 3 ruas</div>
     </a>
     <a href="envasilhamento_animado_v2.html">
+      <div class="card-tag tag-sim">SIMULAÇÃO</div>
       <div class="card-title">Sistema de Envasilhamento</div>
       <div class="card-sub">Estação de engarrafamento — simulação animada com pipeline</div>
     </a>
+
+    <div class="section-label">CAPÍTULO 2 — FICHAS DE ESTUDO</div>
+
+    <a href="study_sheet_2_2_1_language_models.html">
+      <div class="card-tag tag-ch2">§2.2.1</div>
+      <div class="card-title">Modelos de Linguagem de SED</div>
+      <div class="card-sub">Exemplo motivador — máquina de status com alfabeto, palavras e linguagem</div>
+    </a>
+    <a href="study_sheet_2_2_1_linguagem_definicao.html">
+      <div class="card-tag tag-ch2">§2.2.1</div>
+      <div class="card-title">Definição de Linguagem</div>
+      <div class="card-sub">Linguagens L₁, L₂, L₃ expandidas · prefixo, sufixo, subcadeia interativos</div>
+    </a>
+    <a href="study_sheet_operacoes_linguagens.html">
+      <div class="card-tag tag-ch2">§2.2.1</div>
+      <div class="card-title">Operações sobre Linguagens</div>
+      <div class="card-sub">Concatenação, fecho de prefixo, fecho de Kleene e pós-linguagem</div>
+    </a>
+    <a href="study_sheet_2_2_2_automatos.html">
+      <div class="card-tag tag-ch2">§2.2.2</div>
+      <div class="card-title">Autômatos</div>
+      <div class="card-sub">Exemplos 2.3, 2.4, 2.6, 2.7 — autômatos interativos com deadlock e livelock</div>
+    </a>
+
   </div>
 </div>
 </body>
