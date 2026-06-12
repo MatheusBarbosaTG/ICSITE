@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ficha de Estudo — Cap. 2 NFA e ε-NFA</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f1117;--bg2:#181b24;--bg3:#22262f;--bg4:#2c313c;--tx:#e4e6ed;--tx2:#9da2b0;--tx3:#636879;--brd:rgba(255,255,255,.08);--green:#34d399;--green-bg:rgba(52,211,153,.1);--red:#f87171;--red-bg:rgba(248,113,113,.1);--yellow:#fbbf24;--yellow-bg:rgba(251,191,36,.1);--blue:#60a5fa;--blue-bg:rgba(96,165,250,.1);--purple:#a78bfa;--purple-bg:rgba(167,139,250,.12);--cyan:#22d3ee;--cyan-bg:rgba(34,211,238,.1);--orange:#fb923c;--orange-bg:rgba(251,146,60,.1);--font:'DM Sans',sans-serif;--mono:'JetBrains Mono',monospace}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:var(--font);background:var(--bg);color:var(--tx);line-height:1.6}.container{max-width:780px;margin:0 auto;padding:32px 20px 60px}
+.hdr{margin-bottom:32px}.hdr .chap{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--blue);text-transform:uppercase;margin-bottom:4px}.hdr h1{font-size:22px;font-weight:700;letter-spacing:-.3px;line-height:1.3}.hdr p{font-size:13px;color:var(--tx3);margin-top:4px}.hdr .src{font-size:11px;color:var(--tx3);margin-top:2px;font-style:italic}
+h2{font-size:16px;font-weight:600;margin:36px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--brd)}h2 .num{color:var(--tx3);font-weight:400;margin-right:6px}h3{font-size:14px;font-weight:600;margin:24px 0 8px;color:var(--tx2)}
+.prose{font-size:13.5px;color:var(--tx2);line-height:1.75;margin-bottom:16px}.prose strong{color:var(--tx)}.mono{font-family:var(--mono);font-size:11.5px}
+.def-box{background:var(--bg2);border:1.5px solid rgba(96,165,250,.25);border-radius:12px;padding:20px 22px;margin:16px 0;position:relative}.def-box::before{content:attr(data-label);position:absolute;top:-9px;left:18px;background:var(--bg);padding:0 8px;font-size:10px;font-weight:700;letter-spacing:1.2px;color:var(--blue)}.def-box .def-text{font-size:13px;color:var(--tx);line-height:1.8}.def-box .def-text em{color:var(--blue);font-style:normal;font-weight:600}
+.def-box.green{border-color:rgba(52,211,153,.25)}.def-box.green::before{color:var(--green)}.def-box.purple{border-color:rgba(167,139,250,.25)}.def-box.purple::before{color:var(--purple)}.def-box.orange{border-color:rgba(251,146,60,.25)}.def-box.orange::before{color:var(--orange)}
+.lang-box{background:var(--bg2);border:1px solid var(--brd);border-radius:10px;padding:16px 20px;margin:12px 0 16px;font-family:var(--mono);font-size:12.5px;line-height:2}.lang-box .label{color:var(--tx3);font-family:var(--font);font-size:11px;display:block;margin-bottom:4px;font-weight:600;letter-spacing:.5px}.lang-box .eq{color:var(--blue)}.lang-box .sym{color:var(--yellow)}.lang-box .set{color:var(--green)}.lang-box .op{color:var(--purple)}
+.insight{border-left:3px solid var(--blue);background:var(--blue-bg);border-radius:0 10px 10px 0;padding:12px 16px;margin:14px 0;font-size:12.5px;color:var(--tx2);line-height:1.7}.insight strong{color:var(--blue)}.insight.green{border-color:var(--green);background:var(--green-bg)}.insight.green strong{color:var(--green)}.insight.purple{border-color:var(--purple);background:var(--purple-bg)}.insight.purple strong{color:var(--purple)}.insight.orange{border-color:var(--orange);background:var(--orange-bg)}.insight.orange strong{color:var(--orange)}
+.concept-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin:12px 0}.concept-card{padding:14px 16px;border-radius:12px;border:1px solid var(--brd);background:var(--bg2)}.concept-card .c-title{font-size:12px;font-weight:600;margin-bottom:4px}.concept-card .c-body{font-size:11.5px;color:var(--tx2);line-height:1.6}
+.auto-scene{background:var(--bg2);border:1px solid var(--brd);border-radius:14px;padding:20px;margin:14px 0 20px;position:relative;overflow:hidden}
+.auto-scene::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 30% 40%,rgba(96,165,250,.03),transparent 60%);pointer-events:none}
+.auto-label{font-size:11px;font-weight:600;letter-spacing:1px;color:var(--tx3);text-transform:uppercase;margin-bottom:12px;position:relative}
+.auto-svg{display:block;margin:0 auto}
+.ctrl-bar{display:flex;justify-content:center;gap:8px;margin:14px 0 6px;flex-wrap:wrap}
+.evt-btn{padding:8px 22px;border:1.5px solid var(--brd);border-radius:10px;font-family:var(--mono);font-size:14px;font-weight:600;background:var(--bg3);color:var(--tx2);cursor:pointer;transition:all .2s}.evt-btn:hover{background:var(--bg4);color:var(--tx)}
+.reset-btn{padding:8px 14px;border:1.5px solid var(--brd);border-radius:10px;font-family:var(--font);font-size:11px;font-weight:500;background:var(--bg2);color:var(--tx3);cursor:pointer}.reset-btn:hover{color:var(--tx2)}
+.status-line{text-align:center;font-size:12.5px;min-height:20px;margin:8px 0 2px;font-family:var(--mono);color:var(--tx2)}
+.trace-line{text-align:center;font-size:11px;color:var(--tx3);min-height:16px;margin:2px 0}.trace-line span{color:var(--yellow)}
+.tt{width:100%;border-collapse:collapse;font-size:12px;margin:12px 0 16px}.tt th{padding:8px 12px;font-weight:600;font-size:11px;color:var(--tx3);border-bottom:1.5px solid var(--brd);background:var(--bg2);text-align:center}.tt td{padding:8px 12px;border-bottom:1px solid var(--brd);text-align:center;font-family:var(--mono);font-size:12px;color:var(--tx2)}.tt .st-lbl{text-align:right;color:var(--tx3)}.tt .hl{background:var(--green-bg);color:var(--green)}
+.state-set{display:inline-flex;gap:3px;padding:2px 6px;border-radius:6px;border:1px solid var(--brd);background:var(--bg3);font-family:var(--mono);font-size:11px}
+.state-set.active{border-color:var(--green);background:var(--green-bg);color:var(--green)}
+.state-set.accept{border-color:var(--yellow);background:var(--yellow-bg);color:var(--yellow)}
+/* SUBSET CONSTRUCTION STEPS */
+.sc-step{padding:10px 14px;border-radius:8px;border:1px solid var(--brd);background:var(--bg3);margin:6px 0;font-size:12px;color:var(--tx2);line-height:1.7;cursor:pointer;transition:all .3s}
+.sc-step:hover{border-color:rgba(96,165,250,.2)}.sc-step.active{border-color:var(--green);background:var(--green-bg);color:var(--green)}
+.sc-step .sn{font-weight:700;color:var(--tx3);margin-right:6px;font-size:11px}.sc-step.active .sn{color:inherit}
+.footer{text-align:center;font-size:11px;color:var(--tx3);margin-top:40px;padding-top:16px;border-top:1px solid var(--brd)}
+@media(max-width:540px){.container{padding:20px 14px 40px}.concept-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="hdr">
+  <div class="chap">Capítulo 2 — Autômatos Finitos (Parte 2)</div>
+  <h1>NFA e ε-NFA: Não-Determinismo e Transições Vazias</h1>
+  <p>Autômatos não-determinísticos, construção de subconjuntos e ε-transições</p>
+  <div class="src">Baseado em: Hopcroft, Motwani &amp; Ullman — Seções 2.3–2.5</div>
+</div>
+
+<!-- ============================================ -->
+<!-- 1. NFA DEFINITION                             -->
+<!-- ============================================ -->
+<h2><span class="num">1.</span> Definição de NFA (§2.3)</h2>
+
+<div class="def-box" data-label="AUTÔMATO FINITO NÃO-DETERMINÍSTICO">
+  <div class="def-text">
+    Um NFA é uma quíntupla: &nbsp; <em>N = (Q, Σ, δ, q₀, F)</em><br><br>
+    Tudo igual ao DFA, exceto:<br>
+    <b>δ : Q × Σ → 𝒫(Q)</b> = a função de transição retorna um <em>conjunto</em> de estados (pode ser ∅, {q}, {q,r}, ...)<br><br>
+    <b>Diferença fundamental:</b> No DFA, cada (estado, símbolo) leva a exatamente 1 estado. No NFA, pode levar a 0, 1, ou vários estados simultaneamente.
+  </div>
+</div>
+
+<div class="concept-row">
+  <div class="concept-card" style="border-color:rgba(96,165,250,.2)">
+    <div class="c-title" style="color:var(--blue)">DFA — Determinístico</div>
+    <div class="c-body">δ(q, a) = <b>um</b> estado. Sem escolha. Sempre sabe onde ir.</div>
+  </div>
+  <div class="concept-card" style="border-color:rgba(167,139,250,.2)">
+    <div class="c-title" style="color:var(--purple)">NFA — Não-Determinístico</div>
+    <div class="c-body">δ(q, a) = <b>conjunto</b> de estados. "Adivinha" o caminho certo. Se <em>algum</em> caminho aceita, o NFA aceita.</div>
+  </div>
+  <div class="concept-card" style="border-color:rgba(52,211,153,.2)">
+    <div class="c-title" style="color:var(--green)">Mesma Potência!</div>
+    <div class="c-body">Teorema 2.12: L é aceita por algum DFA ⟺ L é aceita por algum NFA. Mesmas linguagens regulares.</div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 2. EXAMPLE 2.6: NFA for "ends with 01"        -->
+<!-- ============================================ -->
+<h2><span class="num">2.</span> Exemplo 2.6 — NFA para "Termina em 01"</h2>
+
+<div class="insight">
+  <strong>Objetivo:</strong> Aceitar todos os strings de 0's e 1's que <b>terminam em 01</b>. Com um DFA precisaríamos de 3 estados cuidadosamente projetados. Com um NFA, a construção é mais intuitiva: o autômato "adivinha" quando o 01 final começou.
+</div>
+
+<div class="lang-box">
+  <span class="label">ESPECIFICAÇÃO</span>
+  <span class="eq">N</span> = ({<span class="set">q₀</span>,<span class="set">q₁</span>,<span class="set">q₂</span>}, {0,1}, δ, <span class="set">q₀</span>, {<span class="set">q₂</span>})<br>
+  δ(<span class="sym">q₀</span>,0) = {<span class="set">q₀, q₁</span>} &nbsp;·&nbsp; δ(<span class="sym">q₀</span>,1) = {<span class="set">q₀</span>}<br>
+  δ(<span class="sym">q₁</span>,0) = <span class="set">∅</span> &nbsp;·&nbsp; δ(<span class="sym">q₁</span>,1) = {<span class="set">q₂</span>}<br>
+  δ(<span class="sym">q₂</span>,0) = <span class="set">∅</span> &nbsp;·&nbsp; δ(<span class="sym">q₂</span>,1) = <span class="set">∅</span>
+</div>
+
+<table class="tt">
+  <thead><tr><th></th><th>0</th><th>1</th></tr></thead>
+  <tbody>
+    <tr><td class="st-lbl">→ q₀</td><td>{q₀, q₁}</td><td>{q₀}</td></tr>
+    <tr><td class="st-lbl">&nbsp;&nbsp;q₁</td><td>∅</td><td>{q₂}</td></tr>
+    <tr><td class="st-lbl">* q₂</td><td>∅</td><td>∅</td></tr>
+  </tbody>
+</table>
+
+<div class="auto-scene">
+  <div class="auto-label">⚡ Interativo — veja o NFA explorando MÚLTIPLOS caminhos</div>
+  <svg class="auto-svg" viewBox="0 0 400 100" width="400" xmlns="http://www.w3.org/2000/svg">
+    <defs><marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1L9 5L1 9" fill="none" stroke="context-stroke" stroke-width="1.8" stroke-linecap="round"/></marker></defs>
+    <circle cx="80" cy="50" r="24" fill="none" stroke="#636879" stroke-width="1.5" id="n-q0"/>
+    <text x="80" y="55" text-anchor="middle" font-family="JetBrains Mono" font-size="13" fill="#9da2b0" id="n-q0-t">q₀</text>
+    <line x1="20" y1="50" x2="52" y2="50" stroke="#636879" stroke-width="1.5" marker-end="url(#a1)"/>
+    <path d="M68 28 Q68 2 80 2 Q92 2 92 28" fill="none" stroke="#636879" stroke-width="1.2" marker-end="url(#a1)"/>
+    <text x="80" y="-2" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#fbbf24">0,1</text>
+    <circle cx="210" cy="50" r="24" fill="none" stroke="#636879" stroke-width="1.5" id="n-q1"/>
+    <text x="210" y="55" text-anchor="middle" font-family="JetBrains Mono" font-size="13" fill="#9da2b0" id="n-q1-t">q₁</text>
+    <line x1="106" y1="50" x2="184" y2="50" stroke="#636879" stroke-width="1.2" marker-end="url(#a1)"/>
+    <text x="145" y="42" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#fbbf24">0</text>
+    <circle cx="340" cy="50" r="24" fill="none" stroke="#636879" stroke-width="1.5" id="n-q2"/>
+    <circle cx="340" cy="50" r="19" fill="none" stroke="#636879" stroke-width="1" id="n-q2-inner"/>
+    <text x="340" y="55" text-anchor="middle" font-family="JetBrains Mono" font-size="13" fill="#9da2b0" id="n-q2-t">q₂</text>
+    <line x1="236" y1="50" x2="314" y2="50" stroke="#636879" stroke-width="1.2" marker-end="url(#a1)"/>
+    <text x="275" y="42" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#fbbf24">1</text>
+  </svg>
+  <div class="ctrl-bar">
+    <button class="evt-btn" onclick="stepNfa('0')">0</button>
+    <button class="evt-btn" onclick="stepNfa('1')">1</button>
+    <button class="reset-btn" onclick="resetNfa()">⟲ Resetar</button>
+  </div>
+  <div class="status-line" id="nfa-stat">Estados ativos: <span class="state-set active">{q₀}</span></div>
+  <div class="trace-line" id="nfa-trace">Entrada: <span>ε</span> · <span style="color:var(--tx3)">Não aceito (q₂ não ativo)</span></div>
+</div>
+
+<!-- ============================================ -->
+<!-- 3. SUBSET CONSTRUCTION                        -->
+<!-- ============================================ -->
+<h2><span class="num">3.</span> Construção de Subconjuntos: NFA → DFA (§2.3.5)</h2>
+
+<div class="def-box green" data-label="TEOREMA 2.11">
+  <div class="def-text">
+    Para cada NFA N, podemos construir um DFA D tal que <em style="color:var(--green)">L(D) = L(N)</em>.<br><br>
+    <b>Ideia:</b> Cada estado do DFA D é um <em style="color:var(--green)">subconjunto</em> de estados do NFA N. O DFA "simula" todos os caminhos possíveis do NFA ao mesmo tempo.
+  </div>
+</div>
+
+<div class="lang-box">
+  <span class="label">CONSTRUÇÃO</span>
+  Dado NFA N = (Q<sub>N</sub>, Σ, δ<sub>N</sub>, q₀, F<sub>N</sub>), construímos DFA D = (Q<sub>D</sub>, Σ, δ<sub>D</sub>, {q₀}, F<sub>D</sub>):<br><br>
+  <span class="eq">Q<sub>D</sub></span> = 𝒫(Q<sub>N</sub>) &nbsp;(subconjuntos de estados de N, no máximo 2<sup>n</sup>)<br>
+  <span class="eq">δ<sub>D</sub>(S, a)</span> = ⋃<sub>q∈S</sub> δ<sub>N</sub>(q, a) &nbsp;(união das transições de todos os estados em S)<br>
+  <span class="eq">F<sub>D</sub></span> = { S ⊆ Q<sub>N</sub> : S ∩ F<sub>N</sub> ≠ ∅ } &nbsp;(subconjuntos que contêm pelo menos um estado de aceitação de N)
+</div>
+
+<h3>Exemplo 2.10 — Convertendo o NFA "termina em 01" para DFA</h3>
+
+<div class="auto-scene">
+  <div class="auto-label">⚡ Clique nos passos para ver a construção</div>
+  <div class="sc-step" id="sc0" onclick="revSC(0)"><span class="sn">1</span> Estado inicial do DFA: {q₀}. Calcular δ<sub>D</sub>({q₀}, 0) e δ<sub>D</sub>({q₀}, 1).</div>
+  <div class="sc-step" id="sc1" onclick="revSC(1)"><span class="sn">2</span> <span id="scc1">Clique para revelar...</span></div>
+  <div class="sc-step" id="sc2" onclick="revSC(2)"><span class="sn">3</span> <span id="scc2">Clique para revelar...</span></div>
+  <div class="sc-step" id="sc3" onclick="revSC(3)"><span class="sn">4</span> <span id="scc3">Clique para revelar...</span></div>
+  <div class="sc-step" id="sc4" onclick="revSC(4)"><span class="sn">RESULTADO</span> <span id="scc4">Clique para revelar...</span></div>
+</div>
+
+<!-- ============================================ -->
+<!-- 4. ε-NFA                                      -->
+<!-- ============================================ -->
+<h2><span class="num">4.</span> ε-NFA: Transições Vazias (§2.5)</h2>
+
+<div class="def-box purple" data-label="ε-NFA">
+  <div class="def-text">
+    Um ε-NFA estende o NFA permitindo transições com <em style="color:var(--purple)">ε</em> (string vazio). O autômato pode mudar de estado <b>sem consumir nenhum símbolo</b> de entrada.<br><br>
+    <b>δ : Q × (Σ ∪ {ε}) → 𝒫(Q)</b><br><br>
+    Novo conceito: <em style="color:var(--purple)">ECLOSE(q)</em> = conjunto de todos os estados alcançáveis a partir de q usando apenas ε-transições (incluindo o próprio q).
+  </div>
+</div>
+
+<div class="concept-row">
+  <div class="concept-card" style="border-color:rgba(167,139,250,.2)">
+    <div class="c-title" style="color:var(--purple)">ECLOSE(q)</div>
+    <div class="c-body">Base: q ∈ ECLOSE(q). Indução: se p ∈ ECLOSE(q) e r ∈ δ(p, ε), então r ∈ ECLOSE(q). Seguir todas as ε-transições recursivamente.</div>
+  </div>
+  <div class="concept-card" style="border-color:rgba(251,146,60,.2)">
+    <div class="c-title" style="color:var(--orange)">ε-NFA → DFA</div>
+    <div class="c-body">Igual à construção de subconjuntos, mas: estado inicial = ECLOSE(q₀), e cada transição δ<sub>D</sub>(S, a) = ECLOSE(⋃<sub>q∈S</sub> δ(q, a)).</div>
+  </div>
+  <div class="concept-card" style="border-color:rgba(52,211,153,.2)">
+    <div class="c-title" style="color:var(--green)">Mesma potência!</div>
+    <div class="c-body">ε-NFA ⟺ NFA ⟺ DFA. Todos aceitam exatamente as linguagens regulares. ε-transições não adicionam poder, apenas conveniência.</div>
+  </div>
+</div>
+
+<h3>Exemplo 2.16 — ε-NFA para números decimais</h3>
+
+<div class="insight purple">
+  <strong>Objetivo:</strong> Aceitar strings da forma [sinal opcional][dígitos][ponto][dígitos] como +3.14, .5, 72., 100 etc. Um ε-NFA modela isso naturalmente: o sinal (+ ou −) é opcional via ε-transição do estado inicial.
+</div>
+
+<div class="lang-box">
+  <span class="label">ESTRUTURA DO ε-NFA</span>
+  <span class="set">q₀</span> →<sup><span class="op">ε, +, −</span></sup> <span class="set">q₁</span> →<sup><span class="sym">dígitos</span></sup> <span class="set">q₁</span> (loop)<br>
+  <span class="set">q₁</span> →<sup><span class="sym">.</span></sup> <span class="set">q₂</span> →<sup><span class="sym">dígitos</span></sup> <span class="set">q₃</span> →<sup><span class="sym">dígitos</span></sup> <span class="set">q₃</span> (loop)<br>
+  <span class="set">q₁</span> →<sup><span class="sym">dígitos</span></sup> <span class="set">q₄</span> →<sup><span class="sym">.</span></sup> <span class="set">q₃</span><br>
+  <span class="set">q₃</span> →<sup><span class="op">ε</span></sup> <span class="set">q₅</span> (aceitação)<br><br>
+  ECLOSE(q₀) = {q₀, q₁} (pois q₀ →<sup>ε</sup> q₁)
+</div>
+
+<h3>Exemplo 2.17 — ε-NFA para busca de palavras-chave</h3>
+
+<div class="insight">
+  <strong>Aplicação:</strong> Reconhecer as palavras "web" e "ebay" em um texto. Criamos uma cadeia de estados para cada palavra e conectamos via ε-transições a um estado inicial comum. Cada cadeia é um NFA simples para uma palavra específica, e o ε-NFA "escolhe" qual palavra tentar reconhecer.
+</div>
+
+<!-- ============================================ -->
+<!-- 5. EXPONENTIAL BLOWUP                         -->
+<!-- ============================================ -->
+<h2><span class="num">5.</span> Exemplo 2.13 — Explosão Exponencial</h2>
+
+<div class="insight orange">
+  <strong>Pior caso:</strong> Um NFA com <b>n+1 estados</b> para "o n-ésimo símbolo a partir do fim é 1" pode exigir um DFA com <b>2<sup>n</sup> estados</b>. Isso porque o DFA precisa "lembrar" os últimos n símbolos, e há 2<sup>n</sup> combinações possíveis. Na prática, a maioria dos estados é inalcançável, mas o pior caso teórico é exponencial.
+</div>
+
+<div class="lang-box">
+  <span class="label">COMPARAÇÃO DE TAMANHO (n = 3: "3º símbolo do fim é 1")</span>
+  <span class="eq">NFA</span>: 4 estados (q₀ → q₁ → q₂ → q₃, com q₀ tendo self-loop 0,1)<br>
+  <span class="eq">DFA</span>: até 2³ = 8 estados (cada estado lembra as últimas 3 entradas)<br><br>
+  Para n = 10: NFA tem 11 estados, DFA pode ter até 1024 estados!
+</div>
+
+<div class="footer">
+  Ficha de Estudo — Hopcroft, Motwani &amp; Ullman, Cap.2 — NFA e ε-NFA<br>
+  Exemplos 2.6 (NFA interativo) · 2.10 (construção de subconjuntos) · 2.13 (explosão) · 2.16-2.17 (ε-NFA)
+</div>
+
+</div>
+
+<script>
+// ===== NFA SIMULATOR: "ends with 01" =====
+var nfaStates=new Set(['q0']);
+var nfaTrace='';
+var nfaTrans={q0:{'0':['q0','q1'],'1':['q0']},q1:{'0':[],'1':['q2']},q2:{'0':[],'1':[]}};
+var nfaAccept=new Set(['q2']);
+
+function renderNfa(){
+  var names=['q0','q1','q2'];var ids=['n-q0','n-q1','n-q2'];
+  names.forEach(function(n,i){
+    var on=nfaStates.has(n);var acc=nfaAccept.has(n)&&on;
+    var c=acc?'#fbbf24':(on?'#34d399':'#636879');
+    document.getElementById(ids[i]).setAttribute('stroke',c);
+    document.getElementById(ids[i]+'-t').setAttribute('fill',on?(acc?'#fbbf24':'#34d399'):'#9da2b0');
+    var inner=document.getElementById(ids[i]+'-inner');if(inner)inner.setAttribute('stroke',c);
+  });
+  var arr=Array.from(nfaStates).sort();
+  var accepted=false;arr.forEach(function(s){if(nfaAccept.has(s))accepted=true});
+  var setHtml=arr.map(function(s){return s}).join(', ');
+  var cls=accepted?'accept':'active';
+  document.getElementById('nfa-stat').innerHTML='Estados ativos: <span class="state-set '+cls+'">{'+setHtml+'}</span>'+(arr.length===0?' <span style="color:var(--red)">(morto — sem estados)</span>':'');
+  var accStr=accepted?'<span style="color:var(--green)">✓ Aceito (q₂ ativo)</span>':'<span style="color:var(--tx3)">Não aceito (q₂ não ativo)</span>';
+  document.getElementById('nfa-trace').innerHTML='Entrada: <span>'+(nfaTrace||'ε')+'</span> · '+accStr;
+}
+
+function stepNfa(a){
+  var next=new Set();
+  nfaStates.forEach(function(s){
+    var targets=nfaTrans[s][a]||[];
+    targets.forEach(function(t){next.add(t)});
+  });
+  nfaStates=next;
+  nfaTrace+=a;
+  renderNfa();
+}
+function resetNfa(){nfaStates=new Set(['q0']);nfaTrace='';renderNfa()}
+resetNfa();
+
+// ===== SUBSET CONSTRUCTION STEPS =====
+var scR=[true,false,false,false,false];
+var scC=[
+  '',
+  'δ<sub>D</sub>({q₀}, 0) = δ<sub>N</sub>(q₀,0) = {q₀, q₁}. δ<sub>D</sub>({q₀}, 1) = δ<sub>N</sub>(q₀,1) = {q₀}. Novo estado: {q₀, q₁}.',
+  'δ<sub>D</sub>({q₀,q₁}, 0) = δ<sub>N</sub>(q₀,0) ∪ δ<sub>N</sub>(q₁,0) = {q₀,q₁} ∪ ∅ = {q₀,q₁}. δ<sub>D</sub>({q₀,q₁}, 1) = {q₀} ∪ {q₂} = {q₀,q₂}. Novo estado: {q₀, q₂}.',
+  'δ<sub>D</sub>({q₀,q₂}, 0) = δ<sub>N</sub>(q₀,0) ∪ δ<sub>N</sub>(q₂,0) = {q₀,q₁} ∪ ∅ = {q₀,q₁}. δ<sub>D</sub>({q₀,q₂}, 1) = {q₀} ∪ ∅ = {q₀}. Nenhum estado novo!',
+  'DFA final: 3 estados = {q₀}, {q₀,q₁}, {q₀,q₂}. Estado de aceitação: {q₀,q₂} (contém q₂ ∈ F). Mesmo número de estados que o NFA — sem explosão neste caso!'
+];
+function revSC(i){
+  if(i>0&&!scR[i-1])return;scR[i]=true;
+  if(i>0)document.getElementById('scc'+i).innerHTML=scC[i];
+  document.getElementById('sc'+i).classList.add('active');
+}
+</script>
+</body>
+</html>

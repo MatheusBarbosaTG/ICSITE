@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ficha de Estudo — Cap. 3 Expressões Regulares e Linguagens</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f1117;--bg2:#181b24;--bg3:#22262f;--bg4:#2c313c;--tx:#e4e6ed;--tx2:#9da2b0;--tx3:#636879;--brd:rgba(255,255,255,.08);--green:#34d399;--green-bg:rgba(52,211,153,.1);--red:#f87171;--red-bg:rgba(248,113,113,.1);--yellow:#fbbf24;--yellow-bg:rgba(251,191,36,.1);--blue:#60a5fa;--blue-bg:rgba(96,165,250,.1);--purple:#a78bfa;--purple-bg:rgba(167,139,250,.12);--cyan:#22d3ee;--cyan-bg:rgba(34,211,238,.1);--orange:#fb923c;--orange-bg:rgba(251,146,60,.1);--font:'DM Sans',sans-serif;--mono:'JetBrains Mono',monospace}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:var(--font);background:var(--bg);color:var(--tx);line-height:1.6}.container{max-width:780px;margin:0 auto;padding:32px 20px 60px}
+.hdr{margin-bottom:32px}.hdr .chap{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--blue);text-transform:uppercase;margin-bottom:4px}.hdr h1{font-size:22px;font-weight:700;letter-spacing:-.3px;line-height:1.3}.hdr p{font-size:13px;color:var(--tx3);margin-top:4px}.hdr .src{font-size:11px;color:var(--tx3);margin-top:2px;font-style:italic}
+h2{font-size:16px;font-weight:600;margin:36px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--brd)}h2 .num{color:var(--tx3);font-weight:400;margin-right:6px}h3{font-size:14px;font-weight:600;margin:24px 0 8px;color:var(--tx2)}
+.prose{font-size:13.5px;color:var(--tx2);line-height:1.75;margin-bottom:16px}.prose strong{color:var(--tx)}.mono{font-family:var(--mono);font-size:11.5px}
+.def-box{background:var(--bg2);border:1.5px solid rgba(96,165,250,.25);border-radius:12px;padding:20px 22px;margin:16px 0;position:relative}.def-box::before{content:attr(data-label);position:absolute;top:-9px;left:18px;background:var(--bg);padding:0 8px;font-size:10px;font-weight:700;letter-spacing:1.2px;color:var(--blue)}.def-box .def-text{font-size:13px;color:var(--tx);line-height:1.8}.def-box .def-text em{color:var(--blue);font-style:normal;font-weight:600}
+.def-box.green{border-color:rgba(52,211,153,.25)}.def-box.green::before{color:var(--green)}.def-box.purple{border-color:rgba(167,139,250,.25)}.def-box.purple::before{color:var(--purple)}.def-box.orange{border-color:rgba(251,146,60,.25)}.def-box.orange::before{color:var(--orange)}.def-box.cyan{border-color:rgba(34,211,238,.25)}.def-box.cyan::before{color:var(--cyan)}
+.lang-box{background:var(--bg2);border:1px solid var(--brd);border-radius:10px;padding:16px 20px;margin:12px 0 16px;font-family:var(--mono);font-size:12.5px;line-height:2}.lang-box .label{color:var(--tx3);font-family:var(--font);font-size:11px;display:block;margin-bottom:4px;font-weight:600;letter-spacing:.5px}.lang-box .eq{color:var(--blue)}.lang-box .sym{color:var(--yellow)}.lang-box .set{color:var(--green)}.lang-box .op{color:var(--purple)}
+.insight{border-left:3px solid var(--blue);background:var(--blue-bg);border-radius:0 10px 10px 0;padding:12px 16px;margin:14px 0;font-size:12.5px;color:var(--tx2);line-height:1.7}.insight strong{color:var(--blue)}.insight.green{border-color:var(--green);background:var(--green-bg)}.insight.green strong{color:var(--green)}.insight.purple{border-color:var(--purple);background:var(--purple-bg)}.insight.purple strong{color:var(--purple)}
+.concept-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin:12px 0}.concept-card{padding:14px 16px;border-radius:12px;border:1px solid var(--brd);background:var(--bg2)}.concept-card .c-title{font-size:12px;font-weight:600;margin-bottom:4px}.concept-card .c-body{font-size:11.5px;color:var(--tx2);line-height:1.6}
+/* OP SCENE */
+.op-scene{background:var(--bg2);border:1px solid var(--brd);border-radius:14px;padding:20px;margin:14px 0 20px}
+.op-label{font-size:11px;font-weight:600;letter-spacing:1px;color:var(--tx3);text-transform:uppercase;margin-bottom:12px}
+.sel-bar{display:flex;justify-content:center;gap:8px;margin:12px 0 6px;flex-wrap:wrap}
+.sel-btn{padding:7px 16px;border:1.5px solid var(--brd);border-radius:10px;font-family:var(--font);font-size:12px;font-weight:500;background:var(--bg2);color:var(--tx2);cursor:pointer;transition:all .2s}.sel-btn:hover{background:var(--bg3);color:var(--tx)}.sel-btn.act{border-color:var(--green);color:var(--green);background:var(--green-bg)}.sel-btn.act-b{border-color:var(--blue);color:var(--blue);background:var(--blue-bg)}.sel-btn.act-p{border-color:var(--purple);color:var(--purple);background:var(--purple-bg)}
+.op-display{margin:14px 0;min-height:60px}
+.pill{display:inline-block;padding:4px 10px;border-radius:7px;font-family:var(--mono);font-size:11.5px;margin:2px 3px;border:1px solid var(--brd);background:var(--bg3);color:var(--tx2)}
+.pill.res{border-color:rgba(52,211,153,.3);color:var(--green);background:var(--green-bg)}
+.pill.src{border-color:rgba(96,165,250,.3);color:var(--blue)}
+.step-row{display:flex;align-items:center;gap:6px;margin:6px 0;font-family:var(--mono);font-size:12px;color:var(--tx2);flex-wrap:wrap}
+/* REGEX TESTER */
+.rx-scene{background:var(--bg2);border:1px solid var(--brd);border-radius:14px;padding:20px;margin:14px 0 20px}
+.rx-input{display:flex;gap:8px;justify-content:center;align-items:center;margin:10px 0;flex-wrap:wrap}
+.rx-input input{padding:8px 14px;border:1.5px solid var(--brd);border-radius:10px;background:var(--bg3);color:var(--tx);font-family:var(--mono);font-size:14px;width:220px;text-align:center;outline:none;transition:border-color .2s}.rx-input input:focus{border-color:var(--blue)}
+.rx-input button{padding:8px 18px;border:1.5px solid var(--blue);border-radius:10px;background:var(--blue-bg);color:var(--blue);font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer}.rx-input button:hover{background:rgba(96,165,250,.2)}
+.rx-result{text-align:center;font-size:13px;min-height:22px;margin:8px 0}
+/* THOMPSON VISUAL */
+.thompson-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.thompson-card{padding:16px;border-radius:12px;border:1px solid var(--brd);background:var(--bg3);text-align:center}
+.thompson-card .tc-title{font-size:11px;font-weight:700;color:var(--tx3);letter-spacing:.5px;margin-bottom:8px}
+.thompson-card svg{display:block;margin:0 auto}
+.thompson-card .tc-desc{font-size:11px;color:var(--tx2);margin-top:8px;line-height:1.5}
+/* LAWS TABLE */
+.laws{width:100%;border-collapse:collapse;font-size:12px;margin:12px 0 16px}
+.laws th{padding:8px 10px;font-weight:600;font-size:11px;color:var(--tx3);border-bottom:1.5px solid var(--brd);background:var(--bg2);text-align:left}
+.laws td{padding:8px 10px;border-bottom:1px solid var(--brd);vertical-align:top}
+.laws .law-name{color:var(--blue);font-weight:600;font-size:11px;white-space:nowrap}
+.laws .law-eq{font-family:var(--mono);font-size:12px;color:var(--tx)}
+.footer{text-align:center;font-size:11px;color:var(--tx3);margin-top:40px;padding-top:16px;border-top:1px solid var(--brd)}
+@media(max-width:540px){.container{padding:20px 14px 40px}.concept-row{grid-template-columns:1fr}.thompson-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="hdr">
+  <div class="chap">Capítulo 3 — Expressões Regulares e Linguagens</div>
+  <h1>Expressões Regulares: Definição, Equivalência e Leis Algébricas</h1>
+  <p>Notação algébrica para linguagens regulares e sua equivalência com autômatos finitos</p>
+  <div class="src">Baseado em: Hopcroft, Motwani &amp; Ullman — Cap. 3</div>
+</div>
+
+<!-- ============================================ -->
+<!-- 1. OPERATORS                                  -->
+<!-- ============================================ -->
+<h2><span class="num">1.</span> Os Três Operadores (§3.1.1)</h2>
+
+<p class="prose">
+  Expressões regulares são construídas a partir de três operações sobre linguagens:
+</p>
+
+<div class="concept-row">
+  <div class="concept-card" style="border-color:rgba(96,165,250,.2)">
+    <div class="c-title" style="color:var(--blue)">União (L ∪ M) — notação: +</div>
+    <div class="c-body">Strings que estão em L <b>ou</b> em M (ou ambos).<br>Ex: {01, 10} ∪ {10, 11} = {01, 10, 11}</div>
+  </div>
+  <div class="concept-card" style="border-color:rgba(52,211,153,.2)">
+    <div class="c-title" style="color:var(--green)">Concatenação (LM) — notação: justaposição</div>
+    <div class="c-body">Cada string de L colado com cada string de M.<br>Ex: {0, 1}{a, b} = {0a, 0b, 1a, 1b}</div>
+  </div>
+  <div class="concept-card" style="border-color:rgba(167,139,250,.2)">
+    <div class="c-title" style="color:var(--purple)">Fecho/Estrela (L*) — notação: *</div>
+    <div class="c-body">Zero ou mais concatenações de strings de L.<br>L* = {ε} ∪ L ∪ LL ∪ LLL ∪ ...</div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 2. FORMAL DEFINITION                          -->
+<!-- ============================================ -->
+<h2><span class="num">2.</span> Definição Formal de Expressão Regular (§3.1.2)</h2>
+
+<div class="def-box" data-label="DEFINIÇÃO RECURSIVA">
+  <div class="def-text">
+    <b>BASE:</b><br>
+    &nbsp;&nbsp;• <em>ε</em> é uma regex. L(ε) = {ε}<br>
+    &nbsp;&nbsp;• <em>∅</em> é uma regex. L(∅) = ∅<br>
+    &nbsp;&nbsp;• Para cada símbolo <b>a</b> ∈ Σ, <em>a</em> é uma regex. L(<b>a</b>) = {a}<br><br>
+    <b>INDUÇÃO:</b> Se E e F são regex, então:<br>
+    &nbsp;&nbsp;1. <em>E + F</em> é regex → L(E+F) = L(E) ∪ L(F)<br>
+    &nbsp;&nbsp;2. <em>EF</em> é regex → L(EF) = L(E) · L(F)<br>
+    &nbsp;&nbsp;3. <em>E*</em> é regex → L(E*) = (L(E))*<br>
+    &nbsp;&nbsp;4. <em>(E)</em> é regex → L((E)) = L(E)
+  </div>
+</div>
+
+<div class="lang-box">
+  <span class="label">PRECEDÊNCIA DOS OPERADORES (do mais forte ao mais fraco)</span>
+  1. <span class="op">*</span> (estrela) — se aplica ao menor operando à esquerda<br>
+  2. <span class="op">concatenação</span> (justaposição) — agrupa da esquerda para a direita<br>
+  3. <span class="op">+</span> (união) — agrupa da esquerda para a direita<br><br>
+  Exemplo: <span class="eq">01*+1</span> é lido como <span class="set">(0(1*))+1</span> → L = {0, 01, 011, 0111, ...} ∪ {1}
+</div>
+
+<!-- ============================================ -->
+<!-- 3. INTERACTIVE EXAMPLES                       -->
+<!-- ============================================ -->
+<h2><span class="num">3.</span> Exemplos Interativos</h2>
+
+<h3>Exemplo 3.1 — Fecho de Kleene de L = {0, 11}</h3>
+
+<div class="op-scene">
+  <div class="op-label">⚡ Interativo — selecione a potência de L</div>
+  <div class="sel-bar" id="sel-kl">
+    <button class="sel-btn" onclick="showKl(0)">L⁰</button>
+    <button class="sel-btn" onclick="showKl(1)">L¹</button>
+    <button class="sel-btn" onclick="showKl(2)">L²</button>
+    <button class="sel-btn" onclick="showKl(3)">L³</button>
+    <button class="sel-btn" onclick="showKl(-1)">L*</button>
+  </div>
+  <div class="op-display" id="kl-disp"></div>
+</div>
+
+<h3>Exemplo 3.2 — Strings alternados de 0's e 1's</h3>
+<div class="insight">
+  <strong>Objetivo:</strong> Escrever uma regex para L = {strings de 0's e 1's que alternam}. Ex: ε, 0, 1, 01, 10, 010, 101, 0101, ...
+</div>
+
+<div class="op-scene">
+  <div class="op-label">⚡ Interativo — construção passo a passo</div>
+  <div class="sel-bar" id="sel-alt">
+    <button class="sel-btn" onclick="showAlt(0)">Passo 1: (01)*</button>
+    <button class="sel-btn" onclick="showAlt(1)">Passo 2: 4 variantes</button>
+    <button class="sel-btn" onclick="showAlt(2)">Passo 3: versão compacta</button>
+  </div>
+  <div class="op-display" id="alt-disp"></div>
+</div>
+
+<h3>Testador de Regex</h3>
+
+<div class="rx-scene">
+  <div class="op-label">Selecione uma regex e teste strings contra ela</div>
+  <div class="sel-bar" id="sel-rx">
+    <button class="sel-btn act-b" onclick="pickRx(0)">0*1*</button>
+    <button class="sel-btn" onclick="pickRx(1)">(01)*</button>
+    <button class="sel-btn" onclick="pickRx(2)">(0+1)*01</button>
+    <button class="sel-btn" onclick="pickRx(3)">1*(01*)*</button>
+    <button class="sel-btn" onclick="pickRx(4)">(ε+1)(01)*</button>
+  </div>
+  <div class="rx-input">
+    <input type="text" id="rx-in" placeholder="String de 0's e 1's" maxlength="20">
+    <button onclick="testRx()">Testar</button>
+  </div>
+  <div class="rx-result" id="rx-res"></div>
+  <div style="text-align:center;font-size:11px;color:var(--tx3);margin-top:6px" id="rx-desc">L = todos os strings da forma 0...01...1 (qualquer número de 0's seguido de qualquer número de 1's)</div>
+</div>
+
+<!-- ============================================ -->
+<!-- 4. THOMPSON CONSTRUCTION                      -->
+<!-- ============================================ -->
+<h2><span class="num">4.</span> Regex → ε-NFA: Construção de Thompson (§3.2.3)</h2>
+
+<p class="prose">
+  Toda expressão regular pode ser convertida em um ε-NFA equivalente. A construção é recursiva: para cada operador, combinamos os autômatos menores.
+</p>
+
+<div class="thompson-grid">
+  <div class="thompson-card">
+    <div class="tc-title">BASE: ε</div>
+    <svg viewBox="0 0 160 50" width="160"><defs><marker id="ta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M1 1L9 5L1 9" fill="none" stroke="context-stroke" stroke-width="2" stroke-linecap="round"/></marker></defs>
+    <circle cx="40" cy="25" r="14" fill="none" stroke="#636879" stroke-width="1.2"/><circle cx="120" cy="25" r="14" fill="none" stroke="#636879" stroke-width="1.2"/><circle cx="120" cy="25" r="10" fill="none" stroke="#636879" stroke-width="0.8"/>
+    <line x1="10" y1="25" x2="24" y2="25" stroke="#636879" stroke-width="1" marker-end="url(#ta)"/>
+    <line x1="56" y1="25" x2="104" y2="25" stroke="#60a5fa" stroke-width="1.2" marker-end="url(#ta)"/>
+    <text x="80" y="18" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#a78bfa">ε</text>
+    </svg>
+    <div class="tc-desc">L(ε) = {ε}</div>
+  </div>
+  <div class="thompson-card">
+    <div class="tc-title">BASE: símbolo a</div>
+    <svg viewBox="0 0 160 50" width="160"><circle cx="40" cy="25" r="14" fill="none" stroke="#636879" stroke-width="1.2"/><circle cx="120" cy="25" r="14" fill="none" stroke="#636879" stroke-width="1.2"/><circle cx="120" cy="25" r="10" fill="none" stroke="#636879" stroke-width="0.8"/>
+    <line x1="10" y1="25" x2="24" y2="25" stroke="#636879" stroke-width="1" marker-end="url(#ta)"/>
+    <line x1="56" y1="25" x2="104" y2="25" stroke="#60a5fa" stroke-width="1.2" marker-end="url(#ta)"/>
+    <text x="80" y="18" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#fbbf24">a</text>
+    </svg>
+    <div class="tc-desc">L(a) = {a}</div>
+  </div>
+  <div class="thompson-card">
+    <div class="tc-title">UNIÃO: E + F</div>
+    <svg viewBox="0 0 200 100" width="200">
+    <circle cx="30" cy="50" r="12" fill="none" stroke="#636879" stroke-width="1.2"/>
+    <line x1="4" y1="50" x2="16" y2="50" stroke="#636879" stroke-width="1" marker-end="url(#ta)"/>
+    <rect x="60" y="10" width="80" height="30" rx="6" fill="none" stroke="#60a5fa" stroke-width="1" stroke-dasharray="3 2"/><text x="100" y="30" text-anchor="middle" font-family="DM Sans" font-size="9" fill="#60a5fa">NFA(E)</text>
+    <rect x="60" y="60" width="80" height="30" rx="6" fill="none" stroke="#fbbf24" stroke-width="1" stroke-dasharray="3 2"/><text x="100" y="80" text-anchor="middle" font-family="DM Sans" font-size="9" fill="#fbbf24">NFA(F)</text>
+    <circle cx="170" cy="50" r="12" fill="none" stroke="#636879" stroke-width="1.2"/><circle cx="170" cy="50" r="8" fill="none" stroke="#636879" stroke-width="0.8"/>
+    <line x1="43" y1="44" x2="58" y2="26" stroke="#a78bfa" stroke-width="1" marker-end="url(#ta)"/>
+    <line x1="43" y1="56" x2="58" y2="74" stroke="#a78bfa" stroke-width="1" marker-end="url(#ta)"/>
+    <line x1="142" y1="26" x2="157" y2="44" stroke="#a78bfa" stroke-width="1" marker-end="url(#ta)"/>
+    <line x1="142" y1="74" x2="157" y2="56" stroke="#a78bfa" stroke-width="1" marker-end="url(#ta)"/>
+    <text x="47" y="34" font-family="JetBrains Mono" font-size="7" fill="#a78bfa">ε</text>
+    <text x="47" y="72" font-family="JetBrains Mono" font-size="7" fill="#a78bfa">ε</text>
+    <text x="150" y="34" font-family="JetBrains Mono" font-size="7" fill="#a78bfa">ε</text>
+    <text x="150" y="72" font-family="JetBrains Mono" font-size="7" fill="#a78bfa">ε</text>
+    </svg>
+    <div class="tc-desc">Escolhe E ou F via ε-transições</div>
+  </div>
+  <div class="thompson-card">
+    <div class="tc-title">CONCATENAÇÃO: EF</div>
+    <svg viewBox="0 0 200 50" width="200">
+    <circle cx="20" cy="25" r="12" fill="none" stroke="#636879" stroke-width="1.2"/>
+    <line x1="2" y1="25" x2="6" y2="25" stroke="#636879" stroke-width="1" marker-end="url(#ta)"/>
+    <rect x="38" y="10" width="52" height="30" rx="6" fill="none" stroke="#60a5fa" stroke-width="1" stroke-dasharray="3 2"/><text x="64" y="28" text-anchor="middle" font-family="DM Sans" font-size="8" fill="#60a5fa">NFA(E)</text>
+    <rect x="108" y="10" width="52" height="30" rx="6" fill="none" stroke="#fbbf24" stroke-width="1" stroke-dasharray="3 2"/><text x="134" y="28" text-anchor="middle" font-family="DM Sans" font-size="8" fill="#fbbf24">NFA(F)</text>
+    <circle cx="180" cy="25" r="12" fill="none" stroke="#636879" stroke-width="1.2"/><circle cx="180" cy="25" r="8" fill="none" stroke="#636879" stroke-width="0.8"/>
+    <line x1="92" y1="25" x2="106" y2="25" stroke="#a78bfa" stroke-width="1" marker-end="url(#ta)"/>
+    <text x="99" y="20" font-family="JetBrains Mono" font-size="7" fill="#a78bfa">ε</text>
+    </svg>
+    <div class="tc-desc">Saída de E conecta à entrada de F via ε</div>
+  </div>
+  <div class="thompson-card" style="grid-column:1/3">
+    <div class="tc-title">ESTRELA: E*</div>
+    <svg viewBox="0 0 240 70" width="240">
+    <circle cx="30" cy="35" r="12" fill="none" stroke="#636879" stroke-width="1.2"/>
+    <line x1="4" y1="35" x2="16" y2="35" stroke="#636879" stroke-width="1" marker-end="url(#ta)"/>
+    <rect x="60" y="15" width="80" height="40" rx="6" fill="none" stroke="#60a5fa" stroke-width="1" stroke-dasharray="3 2"/><text x="100" y="38" text-anchor="middle" font-family="DM Sans" font-size="9" fill="#60a5fa">NFA(E)</text>
+    <circle cx="210" cy="35" r="12" fill="none" stroke="#636879" stroke-width="1.2"/><circle cx="210" cy="35" r="8" fill="none" stroke="#636879" stroke-width="0.8"/>
+    <line x1="43" y1="35" x2="58" y2="35" stroke="#a78bfa" stroke-width="1" marker-end="url(#ta)"/>
+    <text x="50" y="28" font-family="JetBrains Mono" font-size="7" fill="#a78bfa">ε</text>
+    <line x1="142" y1="35" x2="196" y2="35" stroke="#a78bfa" stroke-width="1" marker-end="url(#ta)"/>
+    <text x="168" y="28" font-family="JetBrains Mono" font-size="7" fill="#a78bfa">ε</text>
+    <path d="M140 18 Q170 0 200 18" fill="none" stroke="#a78bfa" stroke-width="0.8" stroke-dasharray="2 2"/>
+    <path d="M140 52 Q100 70 60 52" fill="none" stroke="#34d399" stroke-width="1" marker-end="url(#ta)"/>
+    <text x="100" y="68" text-anchor="middle" font-family="JetBrains Mono" font-size="7" fill="#34d399">ε (loop)</text>
+    <line x1="30" y1="22" x2="210" y2="22" stroke="#fb923c" stroke-width="0.8" marker-end="url(#ta)" stroke-dasharray="2 2"/>
+    <text x="120" y="14" text-anchor="middle" font-family="JetBrains Mono" font-size="7" fill="#fb923c">ε (pula E)</text>
+    </svg>
+    <div class="tc-desc">Loop verde: repete E. Arco laranja: pula E (aceita ε). Garante 0 ou mais repetições.</div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 4B. DFA TO REGEX EXAMPLES                     -->
+<!-- ============================================ -->
+<h2><span class="num">4b.</span> DFA → Regex: Exemplos Resolvidos (§3.2.1–3.2.2)</h2>
+
+<h3>Exemplo 3.5 — Método R<sub>ij</sub><sup>(k)</sup> Completo</h3>
+
+<div class="insight">
+  <strong>DFA:</strong> 2 estados {1, 2}. Estado inicial = 1. Estado de aceitação = {2}. Transições: δ(1,0) = 2, δ(1,1) = 1, δ(2,0) = 2, δ(2,1) = 2. Aceita: strings com pelo menos um 0.
+</div>
+
+<div class="op-scene">
+  <div class="op-label">⚡ Interativo — Clique nos passos do cálculo R<sub>ij</sub><sup>(k)</sup></div>
+  <div class="sel-bar" id="sel-rij">
+    <button class="sel-btn" onclick="showRij(0)">k=0 (base)</button>
+    <button class="sel-btn" onclick="showRij(1)">k=1</button>
+    <button class="sel-btn" onclick="showRij(2)">k=2 (final)</button>
+    <button class="sel-btn" onclick="showRij(3)">Resultado</button>
+  </div>
+  <div class="op-display" id="rij-disp"></div>
+</div>
+
+<h3>Exemplo 3.6 — Eliminação de Estados</h3>
+
+<div class="insight">
+  <strong>Método alternativo:</strong> Em vez de calcular todas as R<sub>ij</sub><sup>(k)</sup>, removemos estados um por um, substituindo as transições por expressões regulares nos arcos. Mais visual e prático.
+</div>
+
+<div class="op-scene">
+  <div class="op-label">⚡ Interativo — Elimine estados um por um</div>
+  <div class="sel-bar" id="sel-elim">
+    <button class="sel-btn" onclick="showElim(0)">Original (4 estados)</button>
+    <button class="sel-btn" onclick="showElim(1)">Eliminar B</button>
+    <button class="sel-btn" onclick="showElim(2)">Eliminar C</button>
+    <button class="sel-btn" onclick="showElim(3)">Regex final</button>
+  </div>
+  <div class="op-display" id="elim-disp"></div>
+</div>
+
+<!-- ============================================ -->
+<!-- 5. EQUIVALENCE                                -->
+<!-- ============================================ -->
+<h2><span class="num">5.</span> Equivalência: RE ⟺ DFA ⟺ NFA ⟺ ε-NFA (§3.2)</h2>
+
+<div class="insight green">
+  <strong>Teorema central:</strong> As quatro notações — DFA, NFA, ε-NFA e Expressão Regular — definem <b>exatamente a mesma classe</b> de linguagens: as <b>linguagens regulares</b>. Qualquer linguagem descrita por uma delas pode ser descrita por qualquer outra.
+</div>
+
+<div class="lang-box">
+  <span class="label">CONVERSÕES</span>
+  <span class="eq">DFA → Regex</span>: método R<sub>ij</sub><sup>(k)</sup> ou eliminação de estados (§3.2.1/3.2.2)<br>
+  <span class="eq">Regex → ε-NFA</span>: construção de Thompson (§3.2.3) — mostrada acima<br>
+  <span class="eq">NFA → DFA</span>: construção de subconjuntos (§2.3)<br>
+  <span class="eq">ε-NFA → DFA</span>: ECLOSE + subconjuntos (§2.5)
+</div>
+
+<!-- ============================================ -->
+<!-- 6. ALGEBRAIC LAWS                             -->
+<!-- ============================================ -->
+<h2><span class="num">6.</span> Leis Algébricas das Expressões Regulares (§3.4)</h2>
+
+<table class="laws">
+  <thead><tr><th>LEI</th><th>FÓRMULA</th></tr></thead>
+  <tbody>
+    <tr><td class="law-name">Comutatividade de +</td><td class="law-eq">R + S = S + R</td></tr>
+    <tr><td class="law-name">Associatividade de +</td><td class="law-eq">(R + S) + T = R + (S + T)</td></tr>
+    <tr><td class="law-name">Associatividade de ·</td><td class="law-eq">(RS)T = R(ST)</td></tr>
+    <tr><td class="law-name">Distributividade</td><td class="law-eq">R(S + T) = RS + RT &nbsp;·&nbsp; (S + T)R = SR + TR</td></tr>
+    <tr><td class="law-name">Identidade de +</td><td class="law-eq">R + ∅ = R</td></tr>
+    <tr><td class="law-name">Identidade de ·</td><td class="law-eq">Rε = εR = R</td></tr>
+    <tr><td class="law-name">Aniquilação</td><td class="law-eq">R∅ = ∅R = ∅</td></tr>
+    <tr><td class="law-name">Idempotência de *</td><td class="law-eq">(R*)* = R*</td></tr>
+    <tr><td class="law-name">∅* e ε*</td><td class="law-eq">∅* = ε &nbsp;·&nbsp; ε* = ε</td></tr>
+    <tr><td class="law-name">Absorção de ε</td><td class="law-eq">(ε + R)* = R*</td></tr>
+    <tr><td class="law-name">Mistura</td><td class="law-eq">(R*S*)* = (R + S)*</td></tr>
+  </tbody>
+</table>
+
+<div class="insight purple">
+  <strong>Cuidado:</strong> A concatenação <b>não</b> é comutativa! RS ≠ SR em geral. Ex: se R = <b>0</b> e S = <b>1</b>, então RS = <b>01</b> e SR = <b>10</b> — linguagens diferentes.
+</div>
+
+<div class="footer">
+  Ficha de Estudo — Hopcroft, Motwani &amp; Ullman, Cap.3 — Expressões Regulares<br>
+  Definição recursiva · Precedência · Thompson · Equivalência RE⟺FA · Leis algébricas
+</div>
+
+</div>
+
+<script>
+// ===== KLEENE CLOSURE: L = {0, 11} =====
+var klData = [
+  {label:'L⁰',pills:['ε'],note:'0 concatenações = apenas ε'},
+  {label:'L¹',pills:['0','11'],note:'1 string de L'},
+  {label:'L²',pills:['00','011','110','1111'],note:'2 strings de L concatenados (2² = 4 combinações)'},
+  {label:'L³',pills:['000','0011','0110','01111','1100','11011','11110','111111'],note:'3 strings de L concatenados (2³ = 8 combinações)'},
+  {label:'L*',pills:['ε','0','11','00','011','110','1111','000','0011','0110','...'],note:'L* = {ε} ∪ L¹ ∪ L² ∪ L³ ∪ ... = INFINITA'}
+];
+function showKl(i){
+  if(i===-1)i=4;
+  var bar=document.getElementById('sel-kl');
+  bar.querySelectorAll('.sel-btn').forEach(function(b,j){b.className='sel-btn'+(j===i?' act':'')});
+  var d=klData[i];
+  var h='<div style="text-align:center;font-size:13px;color:var(--blue);font-weight:600;margin-bottom:8px">'+d.label+'</div>';
+  h+='<div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center">';
+  d.pills.forEach(function(p){h+='<span class="pill'+(p==='...'?'':' res')+'">'+p+'</span>'});
+  h+='</div><div style="text-align:center;font-size:11px;color:var(--tx3);margin-top:8px">'+d.note+'</div>';
+  document.getElementById('kl-disp').innerHTML=h;
+}
+showKl(0);
+
+// ===== ALTERNATING STRINGS =====
+var altData = [
+  {html:'<div style="font-family:var(--mono);font-size:13px;color:var(--tx);text-align:center;margin:8px 0"><span style="color:var(--blue)">(01)*</span></div><div style="text-align:center;font-size:12px;color:var(--tx2)">Gera: ε, 01, 0101, 010101, ...<br>Problema: só pega strings que <b>começam com 0 e terminam com 1</b>.<br>Faltam: 0, 1, 10, 010, 101, etc.</div>'},
+  {html:'<div style="font-family:var(--mono);font-size:13px;color:var(--tx);text-align:center;margin:8px 0"><span style="color:var(--green)">(01)* + (10)* + 0(10)* + 1(01)*</span></div><div style="text-align:center;font-size:12px;color:var(--tx2)">4 variantes que cobrem todos os casos:<br><span class="pill src">(01)*</span> começa com 0, termina com 1<br><span class="pill src">(10)*</span> começa com 1, termina com 0<br><span class="pill src">0(10)*</span> começa e termina com 0<br><span class="pill src">1(01)*</span> começa e termina com 1</div>'},
+  {html:'<div style="font-family:var(--mono);font-size:13px;color:var(--tx);text-align:center;margin:8px 0"><span style="color:var(--purple)">(ε + 1)(01)*(ε + 0)</span></div><div style="text-align:center;font-size:12px;color:var(--tx2)">Versão compacta e elegante:<br><span style="color:var(--purple)">(ε + 1)</span> = pode começar com 1 ou não<br><span style="color:var(--blue)">(01)*</span> = o "miolo" alternado<br><span style="color:var(--purple)">(ε + 0)</span> = pode terminar com 0 ou não<br>Equivalente à versão de 4 termos!</div>'}
+];
+function showAlt(i){
+  var bar=document.getElementById('sel-alt');
+  bar.querySelectorAll('.sel-btn').forEach(function(b,j){b.className='sel-btn'+(j===i?' act-p':'')});
+  document.getElementById('alt-disp').innerHTML=altData[i].html;
+}
+showAlt(0);
+
+// ===== REGEX TESTER =====
+var rxPatterns = [
+  {re:/^0*1*$/,desc:'L = { 0ⁿ1ᵐ : n,m ≥ 0 } — zeros seguidos de uns'},
+  {re:/^(01)*$/,desc:'L = { (01)ⁿ : n ≥ 0 } — repetições do padrão 01'},
+  {re:/^[01]*01$/,desc:'L = { w01 : w ∈ {0,1}* } — termina com 01'},
+  {re:/^1*(01*)*$/,desc:'L = strings sem dois 0\'s consecutivos (começa com 1\'s opcionais)'},
+  {re:/^1?(01)*$/,desc:'L = strings alternados que podem começar com 1'}
+];
+var curRx=0;
+function pickRx(i){
+  curRx=i;
+  var bar=document.getElementById('sel-rx');
+  bar.querySelectorAll('.sel-btn').forEach(function(b,j){b.className='sel-btn'+(j===i?' act-b':'')});
+  document.getElementById('rx-desc').textContent=rxPatterns[i].desc;
+  document.getElementById('rx-res').innerHTML='';
+}
+function testRx(){
+  var w=document.getElementById('rx-in').value;
+  var res=document.getElementById('rx-res');
+  if(!w&&w!==''){res.innerHTML='<span style="color:var(--tx3)">Digite um string (ou deixe vazio para testar ε).</span>';return}
+  if(!/^[01]*$/.test(w)){res.innerHTML='<span style="color:var(--red)">Use apenas 0 e 1.</span>';return}
+  var display=w||'ε';
+  if(rxPatterns[curRx].re.test(w)){
+    res.innerHTML='<span style="color:var(--green)">✓ "'+display+'" ∈ L(R)</span> — aceito pela regex';
+  } else {
+    res.innerHTML='<span style="color:var(--red)">✗ "'+display+'" ∉ L(R)</span> — rejeitado';
+  }
+}
+
+// ===== EXAMPLE 3.5: R_ij^(k) method =====
+var rijData = [
+  {html:'<div style="font-family:var(--mono);font-size:12px;line-height:2.2;color:var(--tx)"><span style="color:var(--tx3)">Base: caminhos diretos (sem intermediários)</span><br>R<sub>11</sub><sup>(0)</sup> = <span style="color:var(--yellow)">ε + 1</span> &nbsp;(self-loop com 1, ou ficar parado)<br>R<sub>12</sub><sup>(0)</sup> = <span style="color:var(--yellow)">0</span> &nbsp;(arco direto 1→2 com 0)<br>R<sub>21</sub><sup>(0)</sup> = <span style="color:var(--yellow)">∅</span> &nbsp;(sem arco 2→1)<br>R<sub>22</sub><sup>(0)</sup> = <span style="color:var(--yellow)">ε + 0 + 1</span> &nbsp;(self-loops com 0 e 1)</div>'},
+  {html:'<div style="font-family:var(--mono);font-size:12px;line-height:2.2;color:var(--tx)"><span style="color:var(--tx3)">k=1: caminhos que podem passar pelo estado 1</span><br>R<sub>ij</sub><sup>(1)</sup> = R<sub>ij</sub><sup>(0)</sup> + R<sub>i1</sub><sup>(0)</sup>(R<sub>11</sub><sup>(0)</sup>)*R<sub>1j</sub><sup>(0)</sup><br><br>R<sub>12</sub><sup>(1)</sup> = 0 + (ε+1)(ε+1)*0 = 0 + 1*0 = <span style="color:var(--green)">1*0</span><br>R<sub>22</sub><sup>(1)</sup> = (ε+0+1) + ∅·(ε+1)*·0 = <span style="color:var(--green)">ε + 0 + 1</span> = <span style="color:var(--green)">(0+1)*</span></div>'},
+  {html:'<div style="font-family:var(--mono);font-size:12px;line-height:2.2;color:var(--tx)"><span style="color:var(--tx3)">k=2: caminhos que podem passar por qualquer estado</span><br>R<sub>12</sub><sup>(2)</sup> = R<sub>12</sub><sup>(1)</sup> + R<sub>12</sub><sup>(1)</sup>(R<sub>22</sub><sup>(1)</sup>)*R<sub>22</sub><sup>(1)</sup><br>= 1*0 + 1*0·(0+1)*·(0+1)* = 1*0 + 1*0(0+1)* = <span style="color:var(--green)">1*0(0+1)*</span></div>'},
+  {html:'<div style="text-align:center;margin:12px 0"><span style="font-size:14px;color:var(--green);font-family:var(--mono);font-weight:700">R<sub>12</sub><sup>(2)</sup> = 1*0(0+1)*</span></div><div style="text-align:center;font-size:12px;color:var(--tx2)">A regex final é a expressão R<sub>1j</sub><sup>(n)</sup> para cada estado de aceitação j.<br>Como 2 é o único estado de aceitação: <b>L = 1*0(0+1)*</b><br>= todos os strings com pelo menos um 0 (qualquer número de 1\'s iniciais).</div>'}
+];
+function showRij(i){
+  var bar=document.getElementById('sel-rij');
+  bar.querySelectorAll('.sel-btn').forEach(function(b,j){b.className='sel-btn'+(j===i?' act':'')});
+  document.getElementById('rij-disp').innerHTML=rijData[i].html;
+}
+showRij(0);
+
+// ===== EXAMPLE 3.6: State elimination =====
+var elimData = [
+  {html:'<div style="text-align:center;font-size:12px;color:var(--tx2);line-height:1.8">DFA com 4 estados: A (início), B, C, D (aceitação).<br><span style="font-family:var(--mono);font-size:11px;color:var(--tx)">A →<sup>0+1</sup> A &nbsp;·&nbsp; A →<sup>0+1</sup> B &nbsp;·&nbsp; B →<sup>1(0+1)</sup> C &nbsp;·&nbsp; C →<sup>0+1</sup> D</span><br>Linguagem: strings cujo 3º símbolo do fim é 1.</div>'},
+  {html:'<div style="text-align:center;font-size:12px;color:var(--tx2);line-height:1.8"><span style="color:var(--red)">Eliminar B:</span> Para cada par (predecessor, sucessor) de B, criar arco direto.<br>A era predecessor de B, C era sucessor de B.<br>Novo arco: A →<sup><span style="color:var(--green)">1(0+1)</span></sup> C<br><span style="font-family:var(--mono);font-size:11px;color:var(--tx)">A →<sup>0+1</sup> A &nbsp;·&nbsp; A →<sup>1(0+1)</sup> C &nbsp;·&nbsp; C →<sup>0+1</sup> D</span></div>'},
+  {html:'<div style="text-align:center;font-size:12px;color:var(--tx2);line-height:1.8"><span style="color:var(--red)">Eliminar C:</span> Predecessor = A, Sucessor = D.<br>Novo arco: A →<sup><span style="color:var(--green)">1(0+1)(0+1)</span></sup> D<br><span style="font-family:var(--mono);font-size:11px;color:var(--tx)">A →<sup>0+1</sup> A &nbsp;·&nbsp; A →<sup>1(0+1)(0+1)</sup> D</span><br>Agora só restam A e D.</div>'},
+  {html:'<div style="text-align:center;margin:12px 0"><span style="font-size:14px;color:var(--green);font-family:var(--mono);font-weight:700">(0+1)*1(0+1)(0+1)</span></div><div style="text-align:center;font-size:12px;color:var(--tx2)">Regex genérica para 2 estados: (R + SU*T)*SU*<br>R = 0+1 (self-loop A), S = 1(0+1)(0+1) (A→D), U = ∅ (sem self-loop D), T = ∅ (sem D→A)<br>= <b>(0+1)*·1(0+1)(0+1)</b> = strings cujo 3º símbolo do fim é 1. ✓</div>'}
+];
+function showElim(i){
+  var bar=document.getElementById('sel-elim');
+  bar.querySelectorAll('.sel-btn').forEach(function(b,j){b.className='sel-btn'+(j===i?' act-p':'')});
+  document.getElementById('elim-disp').innerHTML=elimData[i].html;
+}
+showElim(0);
+</script>
+</body>
+</html>

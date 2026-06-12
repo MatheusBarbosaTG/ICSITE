@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ficha de Estudo — Cap. 1 Fundamentos: Provas, Alfabetos, Strings e Linguagens</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f1117;--bg2:#181b24;--bg3:#22262f;--bg4:#2c313c;--tx:#e4e6ed;--tx2:#9da2b0;--tx3:#636879;--brd:rgba(255,255,255,.08);--green:#34d399;--green-bg:rgba(52,211,153,.1);--red:#f87171;--red-bg:rgba(248,113,113,.1);--yellow:#fbbf24;--yellow-bg:rgba(251,191,36,.1);--blue:#60a5fa;--blue-bg:rgba(96,165,250,.1);--purple:#a78bfa;--purple-bg:rgba(167,139,250,.12);--cyan:#22d3ee;--cyan-bg:rgba(34,211,238,.1);--orange:#fb923c;--orange-bg:rgba(251,146,60,.1);--font:'DM Sans',sans-serif;--mono:'JetBrains Mono',monospace}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:var(--font);background:var(--bg);color:var(--tx);line-height:1.6}.container{max-width:780px;margin:0 auto;padding:32px 20px 60px}
+.hdr{margin-bottom:32px}.hdr .chap{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--blue);text-transform:uppercase;margin-bottom:4px}.hdr h1{font-size:22px;font-weight:700;letter-spacing:-.3px;line-height:1.3}.hdr p{font-size:13px;color:var(--tx3);margin-top:4px}.hdr .src{font-size:11px;color:var(--tx3);margin-top:2px;font-style:italic}
+h2{font-size:16px;font-weight:600;margin:36px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--brd)}h2 .num{color:var(--tx3);font-weight:400;margin-right:6px}h3{font-size:14px;font-weight:600;margin:24px 0 8px;color:var(--tx2)}
+.prose{font-size:13.5px;color:var(--tx2);line-height:1.75;margin-bottom:16px}.prose strong{color:var(--tx)}.mono{font-family:var(--mono);font-size:11.5px}
+.def-box{background:var(--bg2);border:1.5px solid rgba(96,165,250,.25);border-radius:12px;padding:20px 22px;margin:16px 0;position:relative}.def-box::before{content:attr(data-label);position:absolute;top:-9px;left:18px;background:var(--bg);padding:0 8px;font-size:10px;font-weight:700;letter-spacing:1.2px;color:var(--blue)}.def-box .def-text{font-size:13px;color:var(--tx);line-height:1.8}.def-box .def-text em{color:var(--blue);font-style:normal;font-weight:600}
+.def-box.green{border-color:rgba(52,211,153,.25)}.def-box.green::before{color:var(--green)}.def-box.purple{border-color:rgba(167,139,250,.25)}.def-box.purple::before{color:var(--purple)}.def-box.orange{border-color:rgba(251,146,60,.25)}.def-box.orange::before{color:var(--orange)}.def-box.cyan{border-color:rgba(34,211,238,.25)}.def-box.cyan::before{color:var(--cyan)}
+.lang-box{background:var(--bg2);border:1px solid var(--brd);border-radius:10px;padding:16px 20px;margin:12px 0 16px;font-family:var(--mono);font-size:12.5px;line-height:2}.lang-box .label{color:var(--tx3);font-family:var(--font);font-size:11px;display:block;margin-bottom:4px;font-weight:600;letter-spacing:.5px}.lang-box .eq{color:var(--blue)}.lang-box .sym{color:var(--yellow)}.lang-box .set{color:var(--green)}.lang-box .op{color:var(--purple)}
+.insight{border-left:3px solid var(--blue);background:var(--blue-bg);border-radius:0 10px 10px 0;padding:12px 16px;margin:14px 0;font-size:12.5px;color:var(--tx2);line-height:1.7}.insight strong{color:var(--blue)}.insight.green{border-color:var(--green);background:var(--green-bg)}.insight.green strong{color:var(--green)}.insight.purple{border-color:var(--purple);background:var(--purple-bg)}.insight.purple strong{color:var(--purple)}.insight.red{border-color:var(--red);background:var(--red-bg)}.insight.red strong{color:var(--red)}
+.concept-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin:12px 0}.concept-card{padding:14px 16px;border-radius:12px;border:1px solid var(--brd);background:var(--bg2)}.concept-card .c-title{font-size:12px;font-weight:600;margin-bottom:4px}.concept-card .c-body{font-size:11.5px;color:var(--tx2);line-height:1.6}
+/* PROOF VISUAL */
+.proof-scene{background:var(--bg2);border:1px solid var(--brd);border-radius:14px;padding:20px;margin:14px 0 20px;position:relative;overflow:hidden}
+.proof-step{padding:10px 14px;border-radius:8px;border:1px solid var(--brd);background:var(--bg3);margin:6px 0;font-size:12.5px;color:var(--tx2);line-height:1.6;transition:all .3s;cursor:pointer}
+.proof-step:hover{border-color:rgba(96,165,250,.2)}
+.proof-step.active{border-color:var(--green);background:var(--green-bg);color:var(--green)}
+.proof-step .step-n{font-weight:700;color:var(--tx3);margin-right:6px;font-size:11px}
+.proof-step .step-n.done{color:var(--green)}
+/* INTERACTIVE STRING BUILDER */
+.str-scene{background:var(--bg2);border:1px solid var(--brd);border-radius:14px;padding:20px;margin:14px 0 20px}
+.str-label{font-size:11px;font-weight:600;letter-spacing:1px;color:var(--tx3);text-transform:uppercase;margin-bottom:12px}
+.str-display{display:flex;gap:0;margin:10px 0;justify-content:center;flex-wrap:wrap;min-height:48px;align-items:center}
+.str-char{width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:16px;font-weight:600;color:var(--tx);border:1.5px solid var(--brd);background:var(--bg3);transition:all .3s}.str-char:first-child{border-radius:8px 0 0 8px}.str-char:last-child{border-radius:0 8px 8px 0}.str-char:only-child{border-radius:8px}
+.str-empty{font-size:13px;color:var(--tx3);font-style:italic}
+.ctrl-bar{display:flex;justify-content:center;gap:8px;margin:12px 0 6px;flex-wrap:wrap}
+.evt-btn{padding:8px 20px;border:1.5px solid var(--brd);border-radius:10px;font-family:var(--mono);font-size:14px;font-weight:600;background:var(--bg3);color:var(--tx2);cursor:pointer;transition:all .2s}.evt-btn:hover{background:var(--bg4);color:var(--tx);border-color:rgba(255,255,255,.15)}
+.reset-btn{padding:8px 14px;border:1.5px solid var(--brd);border-radius:10px;font-family:var(--font);font-size:11px;font-weight:500;background:var(--bg2);color:var(--tx3);cursor:pointer;transition:all .2s}.reset-btn:hover{color:var(--tx2);background:var(--bg3)}
+.status-line{text-align:center;font-size:12.5px;min-height:20px;margin:8px 0 2px;color:var(--tx2)}
+/* POWER GRID */
+.pow-grid{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;margin:12px 0 16px;font-family:var(--mono);font-size:12px;align-items:start}
+.pow-label{color:var(--blue);text-align:right;padding:4px 0;font-weight:600}
+.pow-items{display:flex;flex-wrap:wrap;gap:4px;padding:4px 0}
+.pow-pill{padding:3px 8px;border-radius:6px;border:1px solid var(--brd);background:var(--bg3);color:var(--tx2);font-size:11px}
+.pow-pill.eps{color:var(--purple);border-color:rgba(167,139,250,.3)}
+/* LANGUAGE MEMBERSHIP TESTER */
+.mem-scene{background:var(--bg2);border:1px solid var(--brd);border-radius:14px;padding:20px;margin:14px 0 20px}
+.mem-input{display:flex;gap:8px;justify-content:center;align-items:center;margin:10px 0;flex-wrap:wrap}
+.mem-input input{padding:8px 14px;border:1.5px solid var(--brd);border-radius:10px;background:var(--bg3);color:var(--tx);font-family:var(--mono);font-size:14px;width:200px;text-align:center;outline:none;transition:border-color .2s}.mem-input input:focus{border-color:var(--blue)}
+.mem-input button{padding:8px 18px;border:1.5px solid var(--blue);border-radius:10px;background:var(--blue-bg);color:var(--blue);font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}.mem-input button:hover{background:rgba(96,165,250,.2)}
+.mem-result{text-align:center;font-size:13px;min-height:22px;margin:8px 0}
+.footer{text-align:center;font-size:11px;color:var(--tx3);margin-top:40px;padding-top:16px;border-top:1px solid var(--brd)}
+@media(max-width:540px){.container{padding:20px 14px 40px}.concept-row{grid-template-columns:1fr}.str-char{width:34px;height:34px;font-size:14px}}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="hdr">
+  <div class="chap">Capítulo 1 — Autômatos: Os Métodos e a Loucura</div>
+  <h1>Fundamentos: Provas, Alfabetos, Strings e Linguagens</h1>
+  <p>Técnicas de prova e os conceitos centrais da teoria de autômatos</p>
+  <div class="src">Baseado em: Hopcroft, Motwani &amp; Ullman, "Introdução à Teoria de Autômatos, Linguagens e Computação" — Cap. 1</div>
+</div>
+
+<!-- ============================================ -->
+<!-- 1. PROOF METHODS                              -->
+<!-- ============================================ -->
+<h2><span class="num">1.</span> Técnicas de Prova</h2>
+
+<p class="prose">
+  Grande parte da teoria de autômatos envolve <strong>provar</strong> propriedades sobre linguagens, autômatos e gramáticas. O livro apresenta seis técnicas fundamentais:
+</p>
+
+<div class="concept-row">
+  <div class="concept-card" style="border-color:rgba(96,165,250,.2)">
+    <div class="c-title" style="color:var(--blue)">Dedutiva (Se-Então)</div>
+    <div class="c-body">Forma: "Se H, então C". Assume H verdadeiro, deriva C por passos lógicos. A mais comum.</div>
+  </div>
+  <div class="concept-card" style="border-color:rgba(52,211,153,.2)">
+    <div class="c-title" style="color:var(--green)">Se-e-Somente-Se</div>
+    <div class="c-body">Forma: "H ⟺ C". Prova nos dois sentidos: (H→C) e (C→H). Equivale a provar igualdade de conjuntos.</div>
+  </div>
+  <div class="concept-card" style="border-color:rgba(251,191,36,.2)">
+    <div class="c-title" style="color:var(--yellow)">Contrapositiva</div>
+    <div class="c-body">Em vez de "Se H então C", prova "Se ¬C então ¬H". Logicamente equivalente, às vezes mais fácil.</div>
+  </div>
+</div>
+<div class="concept-row">
+  <div class="concept-card" style="border-color:rgba(248,113,113,.2)">
+    <div class="c-title" style="color:var(--red)">Contradição</div>
+    <div class="c-body">Assume H e ¬C, deduz algo absurdo. Logo ¬C é impossível, e C deve ser verdadeiro.</div>
+  </div>
+  <div class="concept-card" style="border-color:rgba(251,146,60,.2)">
+    <div class="c-title" style="color:var(--orange)">Contra-exemplo</div>
+    <div class="c-body">Para refutar "∀x, P(x)", basta achar UM x onde P(x) é falso. Ex: "Todo primo é ímpar" → 2 é primo e par. ✗</div>
+  </div>
+  <div class="concept-card" style="border-color:rgba(167,139,250,.2)">
+    <div class="c-title" style="color:var(--purple)">Indução</div>
+    <div class="c-body">Prova S(n) para todo n: mostra BASE (n=0) e PASSO INDUTIVO (S(n)→S(n+1)). Também existe indução estrutural.</div>
+  </div>
+</div>
+
+<!-- INTERACTIVE PROOF: Induction -->
+<h3>Exemplo Interativo — Prova por Indução</h3>
+
+<div class="insight">
+  <strong>Teorema 1.16:</strong> Para todo n ≥ 0, a soma 1 + 2 + ... + n = n(n+1)/2.
+</div>
+
+<div class="proof-scene">
+  <div class="str-label">Clique em cada passo para revelar a prova</div>
+  <div class="proof-step" id="ind0" onclick="revealInd(0)"><span class="step-n">BASE</span> Para n = 0: lado esquerdo = 0 (soma vazia). Lado direito = 0·1/2 = 0. ✓</div>
+  <div class="proof-step" id="ind1" onclick="revealInd(1)"><span class="step-n">HIPÓTESE</span> <span id="ind1-c">Clique para revelar...</span></div>
+  <div class="proof-step" id="ind2" onclick="revealInd(2)"><span class="step-n">INDUÇÃO</span> <span id="ind2-c">Clique para revelar...</span></div>
+  <div class="proof-step" id="ind3" onclick="revealInd(3)"><span class="step-n">CONCLUSÃO</span> <span id="ind3-c">Clique para revelar...</span></div>
+</div>
+
+<!-- MORE PROOF EXAMPLES -->
+<h3>Teorema 1.5 — Prova por Contradição</h3>
+<div class="insight">
+  <strong>Teorema:</strong> Se S é um conjunto finito e T é infinito, então T − S é infinito.
+</div>
+<div class="proof-scene">
+  <div class="str-label">Clique em cada passo para revelar a prova</div>
+  <div class="proof-step" id="ct0" onclick="revCt(0)"><span class="step-n">HIPÓTESE</span> Suponha por contradição que T − S é finito.</div>
+  <div class="proof-step" id="ct1" onclick="revCt(1)"><span class="step-n">RACIOCÍNIO</span> <span id="ct1c">Clique para revelar...</span></div>
+  <div class="proof-step" id="ct2" onclick="revCt(2)"><span class="step-n">CONTRADIÇÃO</span> <span id="ct2c">Clique para revelar...</span></div>
+</div>
+
+<h3>Supostos Teoremas 1.13 e 1.14 — Contra-exemplos</h3>
+<div class="proof-scene">
+  <div class="str-label">Refutando afirmações falsas com um único contra-exemplo</div>
+  <div class="proof-step" style="border-color:var(--red);background:var(--red-bg);color:var(--red);cursor:default"><span class="step-n" style="color:var(--red)">1.13</span> "Todo primo é ímpar" → <b>Contra-exemplo: 2</b>. O número 2 é primo e par. ✗ Refutado.</div>
+  <div class="proof-step" style="border-color:var(--red);background:var(--red-bg);color:var(--red);cursor:default"><span class="step-n" style="color:var(--red)">1.14</span> "Não existem a,b tais que a mod b = b mod a" → <b>Contra-exemplo: a=b=1</b>. 1 mod 1 = 0 = 1 mod 1. ✗ Refutado.</div>
+</div>
+
+<h3>Teorema 1.17 — Indução: Série Geométrica</h3>
+<div class="insight">
+  <strong>Teorema:</strong> Para todo n ≥ 0 e a ≠ 1: &nbsp; 1 + a + a² + ... + aⁿ = (aⁿ⁺¹ − 1)/(a − 1)
+</div>
+<div class="proof-scene">
+  <div class="str-label">Clique nos passos</div>
+  <div class="proof-step" id="gs0" onclick="revGs(0)"><span class="step-n">BASE</span> n=0: esquerdo = a⁰ = 1. Direito = (a−1)/(a−1) = 1. ✓</div>
+  <div class="proof-step" id="gs1" onclick="revGs(1)"><span class="step-n">HIPÓTESE</span> <span id="gs1c">Clique para revelar...</span></div>
+  <div class="proof-step" id="gs2" onclick="revGs(2)"><span class="step-n">INDUÇÃO</span> <span id="gs2c">Clique para revelar...</span></div>
+</div>
+
+<h3>Exemplo 1.23 — Indução Mútua: Autômato On/Off</h3>
+<div class="insight">
+  <strong>Contexto:</strong> Autômato com 2 estados (desligado/ligado) e ação "pressionar". Provar simultaneamente: S₁(n) = "desligado após n pressões ⟺ n par" e S₂(n) = "ligado ⟺ n ímpar".
+</div>
+<div class="proof-scene">
+  <div class="str-label">Clique nos passos da indução mútua</div>
+  <div class="proof-step" id="oo0" onclick="revOo(0)"><span class="step-n">BASE</span> n=0: 0 pressões → desligado (inicial). 0 é par → S₁ ✓. S₂ vacuamente verdadeiro ✓.</div>
+  <div class="proof-step" id="oo1" onclick="revOo(1)"><span class="step-n">INDUÇÃO</span> <span id="oo1c">Clique para revelar...</span></div>
+  <div class="proof-step" id="oo2" onclick="revOo(2)"><span class="step-n">CONCLUSÃO</span> <span id="oo2c">Clique para revelar...</span></div>
+</div>
+
+<!-- ============================================ -->
+<!-- 2. ALPHABETS                                  -->
+<!-- ============================================ -->
+<h2><span class="num">2.</span> Alfabetos (§1.5.1)</h2>
+
+<div class="def-box" data-label="DEFINIÇÃO">
+  <div class="def-text">
+    Um <em>alfabeto</em> é um conjunto <b>finito</b> e <b>não-vazio</b> de símbolos. Denotado por <em>Σ</em>.
+  </div>
+</div>
+
+<div class="lang-box">
+  <span class="label">EXEMPLOS COMUNS</span>
+  <span class="eq">Σ</span> = {<span class="sym">0</span>, <span class="sym">1</span>} &nbsp;→&nbsp; alfabeto binário<br>
+  <span class="eq">Σ</span> = {<span class="sym">a</span>, <span class="sym">b</span>, ..., <span class="sym">z</span>} &nbsp;→&nbsp; letras minúsculas<br>
+  <span class="eq">Σ</span> = {conjunto de caracteres ASCII} &nbsp;→&nbsp; usado em compiladores
+</div>
+
+<!-- ============================================ -->
+<!-- 3. STRINGS                                    -->
+<!-- ============================================ -->
+<h2><span class="num">3.</span> Strings (§1.5.2)</h2>
+
+<div class="def-box green" data-label="DEFINIÇÃO">
+  <div class="def-text">
+    Um <em style="color:var(--green)">string</em> (ou cadeia, palavra) é uma sequência <b>finita</b> de símbolos de algum alfabeto Σ.
+  </div>
+</div>
+
+<div class="concept-row">
+  <div class="concept-card">
+    <div class="c-title" style="color:var(--purple)">String vazio (ε)</div>
+    <div class="c-body">O string com zero símbolos. |ε| = 0. Pertence a Σ* para qualquer Σ. É a identidade da concatenação: εw = wε = w.</div>
+  </div>
+  <div class="concept-card">
+    <div class="c-title" style="color:var(--yellow)">Comprimento |w|</div>
+    <div class="c-body">Número de posições no string. |01101| = 5. |ε| = 0. Note: 01101 tem 2 símbolos distintos mas 5 posições.</div>
+  </div>
+  <div class="concept-card">
+    <div class="c-title" style="color:var(--cyan)">Concatenação (xy)</div>
+    <div class="c-body">Colar y ao final de x. Se x = 011, y = 10, então xy = 01110 e yx = 10011. Ordem importa!</div>
+  </div>
+</div>
+
+<!-- Interactive string concatenation -->
+<div class="str-scene">
+  <div class="str-label">⚡ Interativo — Construtor de Concatenação</div>
+  <div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin:10px 0">
+    <div><div style="font-size:11px;color:var(--tx3);text-align:center;margin-bottom:4px">STRING x</div><div class="str-display" id="sx-disp"><span class="str-empty">vazio</span></div></div>
+    <div style="align-self:center;color:var(--tx3);font-size:20px;padding-top:16px">·</div>
+    <div><div style="font-size:11px;color:var(--tx3);text-align:center;margin-bottom:4px">STRING y</div><div class="str-display" id="sy-disp"><span class="str-empty">vazio</span></div></div>
+    <div style="align-self:center;color:var(--green);font-size:20px;padding-top:16px">=</div>
+    <div><div style="font-size:11px;color:var(--green);text-align:center;margin-bottom:4px">RESULTADO xy</div><div class="str-display" id="sxy-disp"><span class="str-empty">ε</span></div></div>
+  </div>
+  <div class="ctrl-bar">
+    <button class="evt-btn" onclick="addChar('x','0')" style="border-color:rgba(96,165,250,.3);color:var(--blue)">x+0</button>
+    <button class="evt-btn" onclick="addChar('x','1')" style="border-color:rgba(96,165,250,.3);color:var(--blue)">x+1</button>
+    <button class="evt-btn" onclick="addChar('y','0')" style="border-color:rgba(251,191,36,.3);color:var(--yellow)">y+0</button>
+    <button class="evt-btn" onclick="addChar('y','1')" style="border-color:rgba(251,191,36,.3);color:var(--yellow)">y+1</button>
+    <button class="reset-btn" onclick="resetStr()">⟲ Limpar</button>
+  </div>
+  <div class="status-line" id="str-stat">|x| = 0 · |y| = 0 · |xy| = 0 · xy = ε</div>
+</div>
+
+<!-- Potências do alfabeto -->
+<h3>Potências do Alfabeto (Σ<sup>k</sup>)</h3>
+
+<div class="def-box orange" data-label="DEFINIÇÃO">
+  <div class="def-text">
+    <em style="color:var(--orange)">Σ<sup>k</sup></em> = conjunto de todos os strings de comprimento <b>exatamente k</b> sobre Σ.
+  </div>
+</div>
+
+<div class="pow-grid" id="pow-grid">
+  <div class="pow-label">Σ⁰</div><div class="pow-items"><span class="pow-pill eps">ε</span></div>
+  <div class="pow-label">Σ¹</div><div class="pow-items"><span class="pow-pill">0</span><span class="pow-pill">1</span></div>
+  <div class="pow-label">Σ²</div><div class="pow-items"><span class="pow-pill">00</span><span class="pow-pill">01</span><span class="pow-pill">10</span><span class="pow-pill">11</span></div>
+  <div class="pow-label">Σ³</div><div class="pow-items"><span class="pow-pill">000</span><span class="pow-pill">001</span><span class="pow-pill">010</span><span class="pow-pill">011</span><span class="pow-pill">100</span><span class="pow-pill">101</span><span class="pow-pill">110</span><span class="pow-pill">111</span></div>
+</div>
+
+<div class="lang-box">
+  <span class="label">FECHO DE KLEENE E FECHO POSITIVO</span>
+  <span class="eq">Σ*</span> = Σ⁰ ∪ Σ¹ ∪ Σ² ∪ · · · &nbsp;=&nbsp; todos os strings finitos sobre Σ (<span class="op">inclui ε</span>)<br>
+  <span class="eq">Σ⁺</span> = Σ¹ ∪ Σ² ∪ Σ³ ∪ · · · &nbsp;=&nbsp; todos os strings não-vazios (<span class="op">exclui ε</span>)<br>
+  <span class="eq">Σ*</span> = <span class="eq">Σ⁺</span> ∪ {<span class="sym">ε</span>}
+</div>
+
+<!-- ============================================ -->
+<!-- 4. LANGUAGES                                  -->
+<!-- ============================================ -->
+<h2><span class="num">4.</span> Linguagens (§1.5.3)</h2>
+
+<div class="def-box purple" data-label="DEFINIÇÃO">
+  <div class="def-text">
+    Uma <em style="color:var(--purple)">linguagem</em> sobre Σ é qualquer conjunto L ⊆ Σ*. Pode ser finita, infinita, ou até vazia.
+  </div>
+</div>
+
+<div class="lang-box">
+  <span class="label">EXEMPLOS DO LIVRO (Σ = {0, 1})</span>
+  1. L = {<span class="sym">ε</span>, <span class="sym">01</span>, <span class="sym">0011</span>, <span class="sym">000111</span>, ...} = { 0<sup>n</sup>1<sup>n</sup> : n ≥ 0 } → <span class="op">infinita</span><br>
+  2. L = { w ∈ {0,1}* : #0(w) = #1(w) } → <span class="op">infinita</span><br>
+  3. L = { representações binárias de primos } = {<span class="sym">10</span>,<span class="sym">11</span>,<span class="sym">101</span>,<span class="sym">111</span>,<span class="sym">1011</span>,...} → <span class="op">infinita</span><br>
+  4. <span class="eq">Σ*</span> é uma linguagem sobre Σ → <span class="op">infinita</span><br>
+  5. <span class="eq">∅</span> é uma linguagem sobre qualquer Σ → <span class="op">vazia</span><br>
+  6. {<span class="sym">ε</span>} é uma linguagem → <span class="op">finita (1 elemento)</span> &nbsp;·&nbsp; note: ∅ ≠ {ε}
+</div>
+
+<div class="insight red">
+  <strong>Cuidado:</strong> ∅ e {ε} são linguagens diferentes! ∅ não tem nenhum string. {ε} tem exatamente um string (o vazio). É como a diferença entre uma caixa vazia e uma caixa com um papel em branco dentro.
+</div>
+
+<!-- INTERACTIVE LANGUAGE MEMBERSHIP TESTER -->
+<h3>Exemplo Interativo — Testador de Pertinência</h3>
+
+<div class="mem-scene">
+  <div class="str-label">L = { w ∈ {0,1}* : w contém número igual de 0's e 1's }</div>
+  <div class="mem-input">
+    <input type="text" id="mem-in" placeholder="Digite um string de 0's e 1's" maxlength="20">
+    <button onclick="testMem()">Testar w ∈ L?</button>
+  </div>
+  <div class="mem-result" id="mem-res"></div>
+</div>
+
+<div class="mem-scene">
+  <div class="str-label">L = { w ∈ {0,1}* : w é a representação binária de um primo }</div>
+  <div class="mem-input">
+    <input type="text" id="mem-in2" placeholder="Digite um número binário" maxlength="20">
+    <button onclick="testPrime()">Testar w ∈ L?</button>
+  </div>
+  <div class="mem-result" id="mem-res2"></div>
+</div>
+
+<!-- ============================================ -->
+<!-- 5. PROBLEMS                                   -->
+<!-- ============================================ -->
+<h2><span class="num">5.</span> Problemas (§1.5.4)</h2>
+
+<div class="def-box cyan" data-label="DEFINIÇÃO">
+  <div class="def-text">
+    Na teoria de autômatos, um <em style="color:var(--cyan)">problema</em> é a questão de decidir se um dado string w pertence ou não a uma linguagem L:<br><br>
+    Dado w ∈ Σ*, decidir: <em style="color:var(--cyan)">w ∈ L ?</em>
+  </div>
+</div>
+
+<p class="prose">
+  Isso significa que <strong>todo problema de decisão pode ser formulado como pertinência a uma linguagem</strong>. Testar se um número é primo? É verificar se sua representação binária pertence a L<sub>primos</sub>. Verificar se um programa C é válido? É verificar se o string ASCII do código pertence a L<sub>C</sub>. Essa equivalência é a base de toda a teoria de computabilidade.
+</p>
+
+<div class="concept-row">
+  <div class="concept-card" style="border-color:rgba(34,211,238,.2)">
+    <div class="c-title" style="color:var(--cyan)">Problema = Linguagem</div>
+    <div class="c-body">Se L descreve os strings "sim", então decidir o problema é construir um autômato (ou algoritmo) que aceite exatamente L.</div>
+  </div>
+  <div class="concept-card" style="border-color:rgba(52,211,153,.2)">
+    <div class="c-title" style="color:var(--green)">Linguagem Regular</div>
+    <div class="c-body">Se L é aceita por algum DFA, L é regular. Problemas regulares são os "mais fáceis" — decididos com memória finita.</div>
+  </div>
+</div>
+
+<div class="footer">
+  Ficha de Estudo — Hopcroft, Motwani &amp; Ullman, Cap.1 — Fundamentos<br>
+  Técnicas de prova · Alfabetos · Strings · Linguagens · Problemas
+</div>
+
+</div>
+
+<script>
+// ===== INDUCTION PROOF REVEAL =====
+var indRevealed=[true,false,false,false];
+var indContent=[
+  '',
+  'Suponha que S(n) é verdadeiro: 1 + 2 + ... + n = n(n+1)/2. Queremos mostrar S(n+1).',
+  'S(n+1): 1+2+...+n+(n+1) = [n(n+1)/2] + (n+1) = n(n+1)/2 + 2(n+1)/2 = (n+1)(n+2)/2. ✓',
+  'Por indução, S(n) vale para todo n ≥ 0. □'
+];
+function revealInd(i){
+  if(i>0 && !indRevealed[i-1])return;
+  indRevealed[i]=true;
+  if(i>0)document.getElementById('ind'+i+'-c').textContent=indContent[i];
+  document.getElementById('ind'+i).classList.add('active');
+  document.getElementById('ind'+i).querySelector('.step-n').classList.add('done');
+}
+
+// ===== STRING CONCATENATION BUILDER =====
+var sx='',sy='';
+function renderStr(){
+  var dx=document.getElementById('sx-disp');
+  var dy=document.getElementById('sy-disp');
+  var dxy=document.getElementById('sxy-disp');
+  dx.innerHTML=sx?sx.split('').map(function(c){return '<div class="str-char" style="border-color:rgba(96,165,250,.3);color:var(--blue)">'+c+'</div>'}).join(''):'<span class="str-empty">vazio</span>';
+  dy.innerHTML=sy?sy.split('').map(function(c){return '<div class="str-char" style="border-color:rgba(251,191,36,.3);color:var(--yellow)">'+c+'</div>'}).join(''):'<span class="str-empty">vazio</span>';
+  var xy=sx+sy;
+  if(xy){
+    dxy.innerHTML=xy.split('').map(function(c,i){
+      var col=i<sx.length?'border-color:rgba(96,165,250,.3);color:var(--blue)':'border-color:rgba(251,191,36,.3);color:var(--yellow)';
+      return '<div class="str-char" style="'+col+'">'+c+'</div>';
+    }).join('');
+  } else {
+    dxy.innerHTML='<span class="str-empty">ε</span>';
+  }
+  document.getElementById('str-stat').innerHTML='|x| = '+sx.length+' · |y| = '+sy.length+' · |xy| = '+(sx.length+sy.length)+' · xy = '+(xy||'ε');
+}
+function addChar(t,c){if(t==='x'&&sx.length<8)sx+=c;if(t==='y'&&sy.length<8)sy+=c;renderStr()}
+function resetStr(){sx='';sy='';renderStr()}
+renderStr();
+
+// ===== CONTRADICTION PROOF =====
+var ctR=[true,false,false];
+var ctC=['','Todo elemento de T está em S ou em T−S. Portanto T ⊆ S ∪ (T−S). Se S é finito e T−S é finito, então S ∪ (T−S) é finito (união de finitos é finita). Logo T seria finito.','Mas T é infinito por hipótese. Contradição! Logo T−S não pode ser finito. □'];
+function revCt(i){if(i>0&&!ctR[i-1])return;ctR[i]=true;if(i>0)document.getElementById('ct'+i+'c').textContent=ctC[i];document.getElementById('ct'+i).classList.add('active')}
+
+// ===== GEOMETRIC SERIES =====
+var gsR=[true,false,false];
+var gsC=['','Suponha S(n): 1+a+...+aⁿ = (aⁿ⁺¹−1)/(a−1). Queremos S(n+1).','S(n+1): [1+a+...+aⁿ]+aⁿ⁺¹ = (aⁿ⁺¹−1)/(a−1) + aⁿ⁺¹ = (aⁿ⁺¹−1+aⁿ⁺¹(a−1))/(a−1) = (aⁿ⁺²−1)/(a−1). ✓ □'];
+function revGs(i){if(i>0&&!gsR[i-1])return;gsR[i]=true;if(i>0)document.getElementById('gs'+i+'c').textContent=gsC[i];document.getElementById('gs'+i).classList.add('active')}
+
+// ===== ON/OFF MUTUAL INDUCTION =====
+var ooR=[true,false,false];
+var ooC=['','Suponha S₁(n) e S₂(n). Para n+1: se n é par (desligado por S₁), pressionar leva a ligado. n+1 é ímpar → S₂(n+1) ✓. Se n é ímpar (ligado por S₂), pressionar leva a desligado. n+1 é par → S₁(n+1) ✓.','Por indução mútua, S₁(n) e S₂(n) valem para todo n ≥ 0. O autômato está desligado ⟺ número par de pressões. □'];
+function revOo(i){if(i>0&&!ooR[i-1])return;ooR[i]=true;if(i>0)document.getElementById('oo'+i+'c').textContent=ooC[i];document.getElementById('oo'+i).classList.add('active')}
+
+// ===== LANGUAGE MEMBERSHIP: equal 0s and 1s =====
+function testMem(){
+  var w=document.getElementById('mem-in').value;
+  var res=document.getElementById('mem-res');
+  if(!w){res.innerHTML='<span style="color:var(--tx3)">Digite um string para testar.</span>';return}
+  if(!/^[01]*$/.test(w)){res.innerHTML='<span style="color:var(--red)">Use apenas 0 e 1.</span>';return}
+  var c0=0,c1=0;
+  for(var i=0;i<w.length;i++){if(w[i]==='0')c0++;else c1++}
+  if(c0===c1){
+    res.innerHTML='<span style="color:var(--green)">✓ "'+w+'" ∈ L</span> — #0 = '+c0+', #1 = '+c1+' (iguais)';
+  } else {
+    res.innerHTML='<span style="color:var(--red)">✗ "'+w+'" ∉ L</span> — #0 = '+c0+', #1 = '+c1+' (diferentes)';
+  }
+}
+
+// ===== LANGUAGE MEMBERSHIP: primes =====
+function isPrime(n){if(n<2)return false;for(var i=2;i*i<=n;i++){if(n%i===0)return false}return true}
+function testPrime(){
+  var w=document.getElementById('mem-in2').value;
+  var res=document.getElementById('mem-res2');
+  if(!w){res.innerHTML='<span style="color:var(--tx3)">Digite um número binário.</span>';return}
+  if(!/^[01]+$/.test(w)){res.innerHTML='<span style="color:var(--red)">Use apenas 0 e 1.</span>';return}
+  var n=parseInt(w,2);
+  if(isPrime(n)){
+    res.innerHTML='<span style="color:var(--green)">✓ "'+w+'" ∈ L</span> — '+w+'₂ = '+n+'₁₀ é primo';
+  } else {
+    res.innerHTML='<span style="color:var(--red)">✗ "'+w+'" ∉ L</span> — '+w+'₂ = '+n+'₁₀ não é primo';
+  }
+}
+</script>
+</body>
+</html>

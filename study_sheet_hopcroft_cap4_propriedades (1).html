@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ficha de Estudo — Cap. 4 Propriedades das Linguagens Regulares</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f1117;--bg2:#181b24;--bg3:#22262f;--bg4:#2c313c;--tx:#e4e6ed;--tx2:#9da2b0;--tx3:#636879;--brd:rgba(255,255,255,.08);--green:#34d399;--green-bg:rgba(52,211,153,.1);--red:#f87171;--red-bg:rgba(248,113,113,.1);--yellow:#fbbf24;--yellow-bg:rgba(251,191,36,.1);--blue:#60a5fa;--blue-bg:rgba(96,165,250,.1);--purple:#a78bfa;--purple-bg:rgba(167,139,250,.12);--cyan:#22d3ee;--cyan-bg:rgba(34,211,238,.1);--orange:#fb923c;--orange-bg:rgba(251,146,60,.1);--font:'DM Sans',sans-serif;--mono:'JetBrains Mono',monospace}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:var(--font);background:var(--bg);color:var(--tx);line-height:1.6}.container{max-width:780px;margin:0 auto;padding:32px 20px 60px}
+.hdr{margin-bottom:32px}.hdr .chap{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--blue);text-transform:uppercase;margin-bottom:4px}.hdr h1{font-size:22px;font-weight:700;letter-spacing:-.3px;line-height:1.3}.hdr p{font-size:13px;color:var(--tx3);margin-top:4px}.hdr .src{font-size:11px;color:var(--tx3);margin-top:2px;font-style:italic}
+h2{font-size:16px;font-weight:600;margin:36px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--brd)}h2 .num{color:var(--tx3);font-weight:400;margin-right:6px}h3{font-size:14px;font-weight:600;margin:24px 0 8px;color:var(--tx2)}
+.prose{font-size:13.5px;color:var(--tx2);line-height:1.75;margin-bottom:16px}.prose strong{color:var(--tx)}.mono{font-family:var(--mono);font-size:11.5px}
+.def-box{background:var(--bg2);border:1.5px solid rgba(96,165,250,.25);border-radius:12px;padding:20px 22px;margin:16px 0;position:relative}.def-box::before{content:attr(data-label);position:absolute;top:-9px;left:18px;background:var(--bg);padding:0 8px;font-size:10px;font-weight:700;letter-spacing:1.2px;color:var(--blue)}.def-box .def-text{font-size:13px;color:var(--tx);line-height:1.8}.def-box .def-text em{color:var(--blue);font-style:normal;font-weight:600}
+.def-box.red{border-color:rgba(248,113,113,.25)}.def-box.red::before{color:var(--red)}.def-box.green{border-color:rgba(52,211,153,.25)}.def-box.green::before{color:var(--green)}.def-box.purple{border-color:rgba(167,139,250,.25)}.def-box.purple::before{color:var(--purple)}.def-box.orange{border-color:rgba(251,146,60,.25)}.def-box.orange::before{color:var(--orange)}
+.lang-box{background:var(--bg2);border:1px solid var(--brd);border-radius:10px;padding:16px 20px;margin:12px 0 16px;font-family:var(--mono);font-size:12.5px;line-height:2}.lang-box .label{color:var(--tx3);font-family:var(--font);font-size:11px;display:block;margin-bottom:4px;font-weight:600;letter-spacing:.5px}.lang-box .eq{color:var(--blue)}.lang-box .sym{color:var(--yellow)}.lang-box .set{color:var(--green)}.lang-box .op{color:var(--purple)}
+.insight{border-left:3px solid var(--blue);background:var(--blue-bg);border-radius:0 10px 10px 0;padding:12px 16px;margin:14px 0;font-size:12.5px;color:var(--tx2);line-height:1.7}.insight strong{color:var(--blue)}.insight.green{border-color:var(--green);background:var(--green-bg)}.insight.green strong{color:var(--green)}.insight.red{border-color:var(--red);background:var(--red-bg)}.insight.red strong{color:var(--red)}.insight.purple{border-color:var(--purple);background:var(--purple-bg)}.insight.purple strong{color:var(--purple)}
+.concept-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin:12px 0}.concept-card{padding:14px 16px;border-radius:12px;border:1px solid var(--brd);background:var(--bg2)}.concept-card .c-title{font-size:12px;font-weight:600;margin-bottom:4px}.concept-card .c-body{font-size:11.5px;color:var(--tx2);line-height:1.6}
+/* PROOF STEPS */
+.proof-scene{background:var(--bg2);border:1px solid var(--brd);border-radius:14px;padding:20px;margin:14px 0 20px}
+.proof-step{padding:10px 14px;border-radius:8px;border:1px solid var(--brd);background:var(--bg3);margin:6px 0;font-size:12.5px;color:var(--tx2);line-height:1.7;cursor:pointer;transition:all .3s}
+.proof-step:hover{border-color:rgba(96,165,250,.2)}.proof-step.active{border-color:var(--green);background:var(--green-bg);color:var(--green)}.proof-step.active-r{border-color:var(--red);background:var(--red-bg);color:var(--red)}
+.proof-step .sn{font-weight:700;color:var(--tx3);margin-right:6px;font-size:11px}.proof-step.active .sn,.proof-step.active-r .sn{color:inherit}
+/* PUMPING VISUAL */
+.pump-scene{background:var(--bg3);border-radius:10px;padding:16px;margin:10px 0;text-align:center}
+.pump-str{display:flex;justify-content:center;gap:0;margin:10px 0;flex-wrap:wrap}
+.pump-ch{width:28px;height:34px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:14px;font-weight:600;border:1px solid var(--brd);background:var(--bg2);transition:all .3s}
+.pump-ch:first-child{border-radius:6px 0 0 6px}.pump-ch:last-child{border-radius:0 6px 6px 0}
+.pump-ch.px{border-color:rgba(96,165,250,.3);color:var(--blue)}
+.pump-ch.py{border-color:rgba(251,191,36,.3);color:var(--yellow);background:var(--yellow-bg)}
+.pump-ch.pz{border-color:rgba(167,139,250,.3);color:var(--purple)}
+.pump-labels{display:flex;justify-content:center;gap:0;margin:0 0 6px}
+.pump-lbl{width:28px;text-align:center;font-size:9px;font-weight:700}
+.pump-lbl.lx{color:var(--blue)}.pump-lbl.ly{color:var(--yellow)}.pump-lbl.lz{color:var(--purple)}
+.ctrl-bar{display:flex;justify-content:center;gap:8px;margin:12px 0 6px;flex-wrap:wrap}
+.evt-btn{padding:8px 20px;border:1.5px solid var(--brd);border-radius:10px;font-family:var(--mono);font-size:13px;font-weight:600;background:var(--bg3);color:var(--tx2);cursor:pointer;transition:all .2s}.evt-btn:hover{background:var(--bg4);color:var(--tx)}
+.reset-btn{padding:8px 14px;border:1.5px solid var(--brd);border-radius:10px;font-family:var(--font);font-size:11px;font-weight:500;background:var(--bg2);color:var(--tx3);cursor:pointer}.reset-btn:hover{color:var(--tx2)}
+.status-line{text-align:center;font-size:12.5px;min-height:20px;margin:8px 0 2px;color:var(--tx2)}
+.sel-bar{display:flex;justify-content:center;gap:8px;margin:12px 0 6px;flex-wrap:wrap}
+.sel-btn{padding:7px 16px;border:1.5px solid var(--brd);border-radius:10px;font-family:var(--font);font-size:12px;font-weight:500;background:var(--bg2);color:var(--tx2);cursor:pointer;transition:all .2s}.sel-btn:hover{background:var(--bg3);color:var(--tx)}.sel-btn.act{border-color:var(--green);color:var(--green);background:var(--green-bg)}.sel-btn.act-r{border-color:var(--red);color:var(--red);background:var(--red-bg)}
+/* CLOSURE TABLE */
+.cl-table{width:100%;border-collapse:collapse;font-size:12px;margin:12px 0}.cl-table th{padding:8px 10px;font-weight:600;font-size:11px;color:var(--tx3);border-bottom:1.5px solid var(--brd);background:var(--bg2);text-align:left}.cl-table td{padding:8px 10px;border-bottom:1px solid var(--brd)}.cl-table .op-name{font-weight:600;color:var(--blue);white-space:nowrap}.cl-table .op-def{font-family:var(--mono);font-size:11.5px;color:var(--tx)}.cl-table .op-reg{text-align:center}
+.tag{display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:600}.tag-yes{background:var(--green-bg);color:var(--green)}.tag-no{background:var(--red-bg);color:var(--red)}
+.footer{text-align:center;font-size:11px;color:var(--tx3);margin-top:40px;padding-top:16px;border-top:1px solid var(--brd)}
+@media(max-width:540px){.container{padding:20px 14px 40px}.concept-row{grid-template-columns:1fr}.pump-ch{width:22px;height:28px;font-size:12px}.pump-lbl{width:22px}}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="hdr">
+  <div class="chap">Capítulo 4 — Propriedades das Linguagens Regulares</div>
+  <h1>Lema do Bombeamento, Fechamento, Decisão e Minimização</h1>
+  <p>Como provar que linguagens NÃO são regulares, propriedades de fechamento e algoritmos de decisão</p>
+  <div class="src">Baseado em: Hopcroft, Motwani &amp; Ullman — Cap. 4</div>
+</div>
+
+<!-- ============================================ -->
+<!-- 1. PUMPING LEMMA                              -->
+<!-- ============================================ -->
+<h2><span class="num">1.</span> Lema do Bombeamento (§4.1)</h2>
+
+<div class="def-box red" data-label="TEOREMA 4.1 — LEMA DO BOMBEAMENTO">
+  <div class="def-text">
+    Seja L uma linguagem regular. Então existe uma constante <em style="color:var(--red)">n</em> (o "comprimento de bombeamento") tal que, para todo string <b>w ∈ L</b> com |w| ≥ n, podemos dividir w = <em style="color:var(--blue)">x</em><em style="color:var(--yellow)">y</em><em style="color:var(--purple)">z</em> onde:<br><br>
+    &nbsp;&nbsp;1. <em style="color:var(--yellow)">y ≠ ε</em> &nbsp;(a parte do meio não é vazia)<br>
+    &nbsp;&nbsp;2. <em style="color:var(--blue)">|xy| ≤ n</em> &nbsp;(x e y cabem nos primeiros n caracteres)<br>
+    &nbsp;&nbsp;3. Para todo k ≥ 0, <em style="color:var(--green)">xy<sup>k</sup>z ∈ L</em> &nbsp;(podemos "bombear" y qualquer número de vezes)
+  </div>
+</div>
+
+<div class="insight">
+  <strong>Intuição:</strong> Se L é regular, algum DFA com n estados a aceita. Qualquer string com ≥ n caracteres força o DFA a repetir um estado (princípio da casa de pombos). O loop entre as repetições é y — podemos percorrê-lo 0, 1, 2, ... vezes e o DFA ainda aceita.
+</div>
+
+<div class="insight red">
+  <strong>Para que serve:</strong> O lema é usado como <b>prova por contradição</b>. Se assumimos que L é regular mas encontramos um string que NÃO pode ser bombeado, temos uma contradição → L não é regular. O lema <b>não</b> serve para provar que L É regular.
+</div>
+
+<!-- INTERACTIVE PUMPING VISUAL -->
+<h3>Exemplo 4.2 — L<sub>eq</sub> = { 0<sup>n</sup>1<sup>n</sup> : n ≥ 1 } não é regular</h3>
+
+<div class="proof-scene">
+  <div style="font-size:11px;font-weight:600;letter-spacing:1px;color:var(--tx3);text-transform:uppercase;margin-bottom:10px">⚡ Interativo — clique em cada passo da prova</div>
+  <div class="proof-step" id="p1s0" onclick="revP1(0)"><span class="sn">1. SUPOSIÇÃO</span> Suponha por contradição que L<sub>eq</sub> é regular. Pelo lema, existe n.</div>
+  <div class="proof-step" id="p1s1" onclick="revP1(1)"><span class="sn">2. ESCOLHA</span> <span id="p1c1">Clique para revelar...</span></div>
+  <div class="proof-step" id="p1s2" onclick="revP1(2)"><span class="sn">3. DIVISÃO</span> <span id="p1c2">Clique para revelar...</span></div>
+  <div class="proof-step" id="p1s3" onclick="revP1(3)"><span class="sn">4. BOMBEAMENTO</span> <span id="p1c3">Clique para revelar...</span></div>
+  <div class="proof-step" id="p1s4" onclick="revP1(4)"><span class="sn">5. CONTRADIÇÃO</span> <span id="p1c4">Clique para revelar...</span></div>
+</div>
+
+<!-- PUMPING SIMULATOR -->
+<h3>Simulador de Bombeamento — w = 0<sup>n</sup>1<sup>n</sup></h3>
+
+<div class="pump-scene">
+  <div style="font-size:11px;color:var(--tx3);margin-bottom:8px">n = 4 → w = 0000·1111 → escolha |y| e veja o resultado de xy<sup>k</sup>z</div>
+  <div class="pump-labels" id="pump-labels"></div>
+  <div class="pump-str" id="pump-str"></div>
+  <div class="ctrl-bar">
+    <button class="evt-btn" onclick="pumpK(-1)">k−1</button>
+    <button class="evt-btn" onclick="pumpK(1)">k+1</button>
+    <button class="reset-btn" onclick="resetPump()">⟲ k=1</button>
+  </div>
+  <div class="sel-bar">
+    <span style="font-size:11px;color:var(--tx3);padding:7px 0">|y| =</span>
+    <button class="sel-btn act" onclick="setYlen(1)">1</button>
+    <button class="sel-btn" onclick="setYlen(2)">2</button>
+    <button class="sel-btn" onclick="setYlen(3)">3</button>
+    <button class="sel-btn" onclick="setYlen(4)">4</button>
+  </div>
+  <div class="status-line" id="pump-stat"></div>
+</div>
+
+<!-- EXAMPLE 4.3 -->
+<h3>Exemplo 4.3 — L<sub>pr</sub> = { 1<sup>p</sup> : p é primo } não é regular</h3>
+
+<div class="proof-scene">
+  <div style="font-size:11px;font-weight:600;letter-spacing:1px;color:var(--tx3);text-transform:uppercase;margin-bottom:10px">⚡ Interativo — clique em cada passo</div>
+  <div class="proof-step" id="p2s0" onclick="revP2(0)"><span class="sn">1. SUPOSIÇÃO</span> Suponha por contradição que L<sub>pr</sub> é regular. Pelo lema, existe n.</div>
+  <div class="proof-step" id="p2s1" onclick="revP2(1)"><span class="sn">2. ESCOLHA</span> <span id="p2c1">Clique para revelar...</span></div>
+  <div class="proof-step" id="p2s2" onclick="revP2(2)"><span class="sn">3. DIVISÃO</span> <span id="p2c2">Clique para revelar...</span></div>
+  <div class="proof-step" id="p2s3" onclick="revP2(3)"><span class="sn">4. BOMBEAMENTO</span> <span id="p2c3">Clique para revelar...</span></div>
+  <div class="proof-step" id="p2s4" onclick="revP2(4)"><span class="sn">5. CONTRADIÇÃO</span> <span id="p2c4">Clique para revelar...</span></div>
+</div>
+
+<!-- EXAMPLE 4.4 -->
+<h3>Exemplo 4.4 — L = { ww : w ∈ {0,1}* } não é regular</h3>
+
+<div class="proof-scene">
+  <div style="font-size:11px;font-weight:600;letter-spacing:1px;color:var(--tx3);text-transform:uppercase;margin-bottom:10px">⚡ Clique em cada passo</div>
+  <div class="proof-step" id="p3s0" onclick="revP3(0)"><span class="sn">1. SUPOSIÇÃO</span> Suponha que L = {ww} é regular. Pelo lema, existe n.</div>
+  <div class="proof-step" id="p3s1" onclick="revP3(1)"><span class="sn">2. ESCOLHA</span> <span id="p3c1">Clique para revelar...</span></div>
+  <div class="proof-step" id="p3s2" onclick="revP3(2)"><span class="sn">3. DIVISÃO</span> <span id="p3c2">Clique para revelar...</span></div>
+  <div class="proof-step" id="p3s3" onclick="revP3(3)"><span class="sn">4. BOMBEAMENTO</span> <span id="p3c3">Clique para revelar...</span></div>
+  <div class="proof-step" id="p3s4" onclick="revP3(4)"><span class="sn">5. CONTRADIÇÃO</span> <span id="p3c4">Clique para revelar...</span></div>
+</div>
+
+<!-- EXAMPLE 4.7 -->
+<h3>Exemplo 4.7 — Usando Fechamento para provar não-regularidade</h3>
+
+<div class="insight purple">
+  <strong>Problema:</strong> Provar que M = { w ∈ {0,1}* : #0(w) ≠ #1(w) } não é regular. O lema do bombeamento é difícil de aplicar diretamente aqui (bombear y não muda a desigualdade necessariamente). Mas podemos usar <b>fechamento sob complemento</b>.
+</div>
+
+<div class="proof-scene">
+  <div style="font-size:11px;font-weight:600;letter-spacing:1px;color:var(--tx3);text-transform:uppercase;margin-bottom:10px">⚡ Clique em cada passo</div>
+  <div class="proof-step" id="p4s0" onclick="revP4(0)"><span class="sn">1. ESTRATÉGIA</span> M = complemento de L<sub>eq</sub> = {w : #0 = #1}. Se M é regular, pelo fechamento sob complemento, L<sub>eq</sub> = M̄ também é regular.</div>
+  <div class="proof-step" id="p4s1" onclick="revP4(1)"><span class="sn">2. INTERSEÇÃO</span> <span id="p4c1">Clique para revelar...</span></div>
+  <div class="proof-step" id="p4s2" onclick="revP4(2)"><span class="sn">3. CONTRADIÇÃO</span> <span id="p4c2">Clique para revelar...</span></div>
+</div>
+
+<!-- ============================================ -->
+<!-- 2. CLOSURE PROPERTIES                         -->
+<!-- ============================================ -->
+<h2><span class="num">2.</span> Propriedades de Fechamento (§4.2)</h2>
+
+<p class="prose">
+  Se L e M são linguagens regulares, as operações abaixo também produzem linguagens regulares:
+</p>
+
+<table class="cl-table">
+  <thead><tr><th>OPERAÇÃO</th><th>DEFINIÇÃO</th><th>REGULAR?</th><th>COMO PROVAR</th></tr></thead>
+  <tbody>
+    <tr><td class="op-name">L ∪ M</td><td class="op-def">strings em L ou M</td><td class="op-reg"><span class="tag tag-yes">✓ SIM</span></td><td style="font-size:11px;color:var(--tx2)">Regex: R + S</td></tr>
+    <tr><td class="op-name">L ∩ M</td><td class="op-def">strings em L e M</td><td class="op-reg"><span class="tag tag-yes">✓ SIM</span></td><td style="font-size:11px;color:var(--tx2)">De Morgan: L̄ ∪ M̄ (barra)</td></tr>
+    <tr><td class="op-name">L̄ (complemento)</td><td class="op-def">Σ* − L</td><td class="op-reg"><span class="tag tag-yes">✓ SIM</span></td><td style="font-size:11px;color:var(--tx2)">Inverter F no DFA</td></tr>
+    <tr><td class="op-name">L − M</td><td class="op-def">strings em L mas não em M</td><td class="op-reg"><span class="tag tag-yes">✓ SIM</span></td><td style="font-size:11px;color:var(--tx2)">L ∩ M̄</td></tr>
+    <tr><td class="op-name">L<sup>R</sup> (reverso)</td><td class="op-def">strings de L invertidos</td><td class="op-reg"><span class="tag tag-yes">✓ SIM</span></td><td style="font-size:11px;color:var(--tx2)">Inverter arcos, trocar F ↔ q₀</td></tr>
+    <tr><td class="op-name">h(L) (homomorfismo)</td><td class="op-def">substituir símbolos por strings</td><td class="op-reg"><span class="tag tag-yes">✓ SIM</span></td><td style="font-size:11px;color:var(--tx2)">Substituir na regex</td></tr>
+    <tr><td class="op-name">h⁻¹(L) (inverso)</td><td class="op-def">pré-imagem de h</td><td class="op-reg"><span class="tag tag-yes">✓ SIM</span></td><td style="font-size:11px;color:var(--tx2)">Construção sobre DFA</td></tr>
+  </tbody>
+</table>
+
+<div class="insight green">
+  <strong>Uso prático:</strong> O fechamento permite provar que linguagens NÃO são regulares sem usar o lema do bombeamento diretamente. Se L ∩ R não é regular e R é regular, então L não pode ser regular (senão a interseção seria regular por fechamento). Exemplo 4.7 do livro usa essa técnica.
+</div>
+
+<!-- EXAMPLE 4.6 -->
+<h3>Exemplo 4.6 — Complemento na prática</h3>
+<div class="lang-box">
+  <span class="label">CONSTRUÇÃO DO COMPLEMENTO</span>
+  DFA para <span class="eq">L</span> = L((0+1)*01) = strings que terminam em 01<br>
+  DFA para <span class="eq">L̄</span> = strings que <span class="op">NÃO</span> terminam em 01<br><br>
+  Método: pegar o DFA de L e <span class="set">inverter os estados de aceitação</span>.<br>
+  Se q ∈ F → q ∉ F' &nbsp;&nbsp;·&nbsp;&nbsp; Se q ∉ F → q ∈ F'
+</div>
+
+<!-- EXAMPLE 4.15 -->
+<h3>Exemplo 4.15 — Homomorfismo</h3>
+
+<div class="insight">
+  <strong>Definição:</strong> Um homomorfismo h : Σ → T* substitui cada símbolo do alfabeto por um string. Aplicar h a uma linguagem L significa aplicar a substituição a cada string de L.
+</div>
+
+<div class="lang-box">
+  <span class="label">EXEMPLO RESOLVIDO</span>
+  <span class="eq">L</span> = L((00+1)*) = strings de 0's e 1's onde 0's sempre aparecem em pares<br>
+  Homomorfismo: <span class="sym">h(a) = 01</span>, <span class="sym">h(b) = 10</span><br><br>
+  <span class="set">h⁻¹(L)</span> = { w ∈ {a,b}* : h(w) ∈ L } = ?<br><br>
+  h(a) = 01 → o 0 isolado não casa com (00+1)* → a não pode aparecer sozinho<br>
+  h(b) = 10 → o 0 no final precisa de outro 0 → <span class="sym">h(ba) = 1001</span> ∈ L ✓<br>
+  h(baba) = 10·01·10·01 = <span class="set">10011001</span> ∈ L ✓<br><br>
+  <span class="set">h⁻¹(L) = L((ba)*)</span> = repetições do padrão "ba" (incluindo ε).<br>
+  <span style="color:var(--tx3)">Regularidade preservada: L regular → h⁻¹(L) regular. ✓</span>
+</div>
+
+<!-- ============================================ -->
+<!-- 3. DECISION PROPERTIES                        -->
+<!-- ============================================ -->
+<h2><span class="num">3.</span> Propriedades de Decisão (§4.3)</h2>
+
+<div class="concept-row">
+  <div class="concept-card" style="border-color:rgba(96,165,250,.2)">
+    <div class="c-title" style="color:var(--blue)">L(A) = ∅ ?</div>
+    <div class="c-body">Testar se algum estado de aceitação é alcançável a partir de q₀. Busca em grafo: O(n²).</div>
+  </div>
+  <div class="concept-card" style="border-color:rgba(52,211,153,.2)">
+    <div class="c-title" style="color:var(--green)">w ∈ L(A) ?</div>
+    <div class="c-body">Simular o DFA em w. Se termina em F, aceita. Tempo O(|w|).</div>
+  </div>
+  <div class="concept-card" style="border-color:rgba(251,191,36,.2)">
+    <div class="c-title" style="color:var(--yellow)">L(A) é finita?</div>
+    <div class="c-body">Verificar se existe ciclo nos estados alcançáveis que leva a F. Se sim, infinita. Busca em grafo.</div>
+  </div>
+</div>
+
+<div class="concept-row">
+  <div class="concept-card" style="border-color:rgba(167,139,250,.2)">
+    <div class="c-title" style="color:var(--purple)">L(A) = L(B) ?</div>
+    <div class="c-body">Calcular a diferença simétrica: (L(A) − L(B)) ∪ (L(B) − L(A)). Se vazia, são equivalentes. Usa o autômato produto.</div>
+  </div>
+  <div class="concept-card" style="border-color:rgba(34,211,238,.2)">
+    <div class="c-title" style="color:var(--cyan)">L(A) ⊆ L(B) ?</div>
+    <div class="c-body">Verificar se L(A) ∩ L(B̄) = ∅. Se sim, toda cadeia de A também está em B.</div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- 4. MINIMIZATION                               -->
+<!-- ============================================ -->
+<h2><span class="num">4.</span> Minimização de DFA (§4.4)</h2>
+
+<div class="def-box purple" data-label="ESTADOS DISTINGUÍVEIS">
+  <div class="def-text">
+    Dois estados p e q são <em style="color:var(--purple)">distinguíveis</em> se existe um string w tal que δ̂(p,w) ∈ F e δ̂(q,w) ∉ F (ou vice-versa).<br>
+    Se não são distinguíveis, são <em style="color:var(--green)">equivalentes</em> e podem ser fundidos em um único estado.
+  </div>
+</div>
+
+<div class="lang-box">
+  <span class="label">ALGORITMO DE PREENCHIMENTO DE TABELA</span>
+  <span class="set">1.</span> Marcar todos os pares (p,q) onde um é de aceitação e o outro não. (Base)<br>
+  <span class="set">2.</span> Para cada par não marcado (p,q), verificar: para algum símbolo a,<br>
+  &nbsp;&nbsp;&nbsp;o par (δ(p,a), δ(q,a)) já está marcado? Se sim, marcar (p,q). (Indução)<br>
+  <span class="set">3.</span> Repetir o passo 2 até nenhuma nova marcação.<br>
+  <span class="set">4.</span> Pares NÃO marcados = estados equivalentes → fundir.
+</div>
+
+<h3>Exemplo 4.18 — Minimização Interativa</h3>
+<div class="insight">
+  <strong>DFA com 8 estados:</strong> A,B,C,D,E,F,G,H. Estado inicial = A. Estados de aceitação = {C}. Após minimização, estados equivalentes são fundidos.
+</div>
+
+<div class="proof-scene">
+  <div style="font-size:11px;font-weight:600;letter-spacing:1px;color:var(--tx3);text-transform:uppercase;margin-bottom:10px">⚡ Clique nos passos do algoritmo</div>
+  <div class="proof-step" id="ms0" onclick="revMin(0)"><span class="sn">BASE</span> Marcar todos os pares {aceitação, não-aceitação}: (A,C), (B,C), (C,D), (C,E), (C,F), (C,G), (C,H).</div>
+  <div class="proof-step" id="ms1" onclick="revMin(1)"><span class="sn">ITER 1</span> <span id="mc1">Clique para revelar...</span></div>
+  <div class="proof-step" id="ms2" onclick="revMin(2)"><span class="sn">ITER 2</span> <span id="mc2">Clique para revelar...</span></div>
+  <div class="proof-step" id="ms3" onclick="revMin(3)"><span class="sn">RESULTADO</span> <span id="mc3">Clique para revelar...</span></div>
+</div>
+
+<div class="footer">
+  Ficha de Estudo — Hopcroft, Motwani &amp; Ullman, Cap.4 — Propriedades das Linguagens Regulares<br>
+  Lema do Bombeamento · Fechamento · Decisão · Minimização
+</div>
+
+</div>
+
+<script>
+// ===== PROOF 1: 0^n 1^n =====
+var p1r=[true,false,false,false,false];
+var p1c=['',
+  'Escolhemos w = 0ⁿ1ⁿ ∈ L (com |w| = 2n ≥ n). Este string tem n zeros seguidos de n uns.',
+  'Pelo lema, w = xyz com |xy| ≤ n e y ≠ ε. Como |xy| ≤ n, x e y consistem apenas de 0\'s. Então y = 0ᵐ para algum m ≥ 1.',
+  'Bombeando com k = 0: xy⁰z = xz. Removemos m zeros, ficando com (n−m) zeros e n uns. Como m ≥ 1, temos n−m ≠ n.',
+  'xz = 0ⁿ⁻ᵐ1ⁿ com n−m < n. Mas L exige #0 = #1. Logo xz ∉ L → CONTRADIÇÃO com o lema. ∴ L não é regular. □'
+];
+function revP1(i){
+  if(i>0&&!p1r[i-1])return;p1r[i]=true;
+  if(i>0)document.getElementById('p1c'+i).textContent=p1c[i];
+  document.getElementById('p1s'+i).classList.add(i===4?'active-r':'active');
+}
+
+// ===== PROOF 2: 1^p, p prime =====
+var p2r=[true,false,false,false,false];
+var p2c=['',
+  'Escolhemos um primo p ≥ n+2 (sempre existe). Então w = 1ᵖ ∈ L com |w| = p ≥ n.',
+  'Pelo lema, w = xyz com y = 1ᵐ (m ≥ 1, m ≤ n). Então |xz| = p − m e |xy^k z| = p − m + km = p + (k−1)m.',
+  'Escolhemos k = p − m + 1. Então |xy^k z| = p + (p−m)·m = p + pm − m² = (m+1)(p−m). Este é um PRODUTO de dois números.',
+  'Como m ≥ 1 → (m+1) ≥ 2, e como m ≤ n < p → (p−m) ≥ 2. Logo (m+1)(p−m) é composto (não primo). ∴ xy^k z ∉ L → CONTRADIÇÃO. □'
+];
+function revP2(i){
+  if(i>0&&!p2r[i-1])return;p2r[i]=true;
+  if(i>0)document.getElementById('p2c'+i).textContent=p2c[i];
+  document.getElementById('p2s'+i).classList.add(i===4?'active-r':'active');
+}
+
+// ===== PUMPING SIMULATOR =====
+var pN=4,pYlen=1,pK=1;
+function renderPump(){
+  var x='',y='',z='';
+  for(var i=0;i<pN-pYlen;i++)x+='0';
+  for(var i=0;i<pYlen;i++)y+='0';
+  var zPart='';for(var i=0;i<pN;i++)zPart+='1';
+  z=zPart;
+  var yRep='';for(var i=0;i<pK;i++)yRep+=y;
+  var full=x+yRep+z;
+  var labels='',chars='';
+  for(var i=0;i<x.length;i++){labels+='<div class="pump-lbl lx">x</div>';chars+='<div class="pump-ch px">'+x[i]+'</div>';}
+  for(var i=0;i<yRep.length;i++){labels+='<div class="pump-lbl ly">y</div>';chars+='<div class="pump-ch py">'+yRep[i]+'</div>';}
+  for(var i=0;i<z.length;i++){labels+='<div class="pump-lbl lz">z</div>';chars+='<div class="pump-ch pz">'+z[i]+'</div>';}
+  document.getElementById('pump-labels').innerHTML=labels;
+  document.getElementById('pump-str').innerHTML=chars;
+  var c0=x.length+yRep.length,c1=z.length;
+  var inL=c0===c1;
+  document.getElementById('pump-stat').innerHTML=
+    'k='+pK+' → xy<sup>'+pK+'</sup>z = 0<sup>'+c0+'</sup>1<sup>'+c1+'</sup> → #0='+c0+', #1='+c1+' → '+
+    (inL?'<span style="color:var(--green)">∈ L ✓</span>':'<span style="color:var(--red)">∉ L ✗ ('+c0+'≠'+c1+')</span>');
+  // Update ylen buttons
+  document.querySelectorAll('#pump-str').forEach(function(){});
+}
+function pumpK(d){pK=Math.max(0,pK+d);renderPump()}
+function resetPump(){pK=1;renderPump()}
+function setYlen(v){
+  pYlen=v;pK=1;
+  var btns=document.querySelectorAll('.sel-bar .sel-btn');
+  // Find the ylen buttons (last sel-bar)
+  var bars=document.querySelectorAll('.sel-bar');
+  var last=bars[bars.length-1];
+  last.querySelectorAll('.sel-btn').forEach(function(b,i){b.className='sel-btn'+(i+1===v?' act':'')});
+  renderPump();
+}
+renderPump();
+
+// ===== MINIMIZATION =====
+var mr=[true,false,false,false];
+var mc=['',
+  'Verificar pares não marcados. (A,G): δ(A,0)=B, δ(G,0)=G → par (B,G). δ(A,1)=F, δ(G,1)=E → par (E,F). Ambos não marcados ainda. Mas (A,G) com entrada "01": δ̂(A,01)=C∈F, δ̂(G,01)=E∉F → marcar (A,G). Continuar para todos os pares...',
+  'Após propagação completa, os pares NÃO marcados (= equivalentes) são: {A,E}, {B,H}, {D,F}.',
+  'DFA minimizado: fundir A≡E, B≡H, D≡F. Resultado: 5 estados em vez de 8. O DFA mínimo é ÚNICO (a menos de renomeação).'
+];
+function revMin(i){
+  if(i>0&&!mr[i-1])return;mr[i]=true;
+  if(i>0)document.getElementById('mc'+i).textContent=mc[i];
+  document.getElementById('ms'+i).classList.add(i===3?'active':'active');
+}
+
+// ===== PROOF 3: ww not regular =====
+var p3r=[true,false,false,false,false];
+var p3c=['',
+  'Escolhemos w = 0ⁿ1ⁿ0ⁿ1ⁿ ∈ L (pois w = (0ⁿ1ⁿ)(0ⁿ1ⁿ) = ss com s = 0ⁿ1ⁿ). |w| = 4n ≥ n.',
+  'Pelo lema, w = xyz com |xy| ≤ n e y ≠ ε. Como |xy| ≤ n, y consiste apenas de 0\'s (dentro dos primeiros n zeros). Seja y = 0ᵐ com m ≥ 1.',
+  'Bombeando com k = 0: xy⁰z = xz = 0ⁿ⁻ᵐ1ⁿ0ⁿ1ⁿ. Para este string pertencer a L (formato ss), a primeira metade deve ser igual à segunda.',
+  'A primeira metade de xz tem (4n−m)/2 = 2n−m/2 símbolos (se m for par). Mas a "metade" começa com n−m zeros e depois tem 1\'s, enquanto a segunda metade começa com 0\'s. As metades não podem ser iguais pois n−m < n. Contradição! ∴ L não é regular. □'
+];
+function revP3(i){if(i>0&&!p3r[i-1])return;p3r[i]=true;if(i>0)document.getElementById('p3c'+i).textContent=p3c[i];document.getElementById('p3s'+i).classList.add(i===4?'active-r':'active')}
+
+// ===== PROOF 4: closure argument (Ex 4.7) =====
+var p4r=[true,false,false];
+var p4c=['',
+  'Se L_eq = {w : #0 = #1} fosse regular, então L_eq ∩ L(0*1*) também seria regular (fechamento sob interseção). Mas L_eq ∩ 0*1* = {0ⁿ1ⁿ : n ≥ 0}.',
+  'Já provamos (Ex 4.2) que {0ⁿ1ⁿ} NÃO é regular. Logo L_eq não pode ser regular. E como M = complemento de L_eq, se M fosse regular, L_eq = M̄ seria regular (fechamento sob complemento). Contradição! ∴ M = {w : #0 ≠ #1} não é regular. □'
+];
+function revP4(i){if(i>0&&!p4r[i-1])return;p4r[i]=true;if(i>0)document.getElementById('p4c'+i).textContent=p4c[i];document.getElementById('p4s'+i).classList.add(i===2?'active-r':'active')}
+</script>
+</body>
+</html>
